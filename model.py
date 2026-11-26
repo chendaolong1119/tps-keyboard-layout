@@ -35,7 +35,7 @@ for ri,r in enumerate(ROWS):
 EFF['SP']=0.6;FINGER['SP']=5;ROW['SP']=4
 # Keys outside the 41-key grid, used only by desktop-only layouts (Wu Shou-li Mandarin-extended keyboard).
 # Row -1 = function-key row. Efforts extrapolate the grid: farther and pinky-heavier keys cost more.
-EXTRA={'`':(4.5,0,0),'=':(5.0,9,0),'[':(3.0,9,1),']':(3.5,9,1),'\\':(4.0,9,1),"'":(2.0,9,2),
+EXTRA={'`':(4.5,0,0),'=':(5.0,9,0),'[':(3.0,9,1),']':(3.5,9,1),'\\':(5.5,9,0),"'":(2.0,9,2),
        'F1':(5.5,0,-1),'F2':(5.0,1,-1),'F3':(5.0,2,-1),'F4':(5.0,3,-1),'F5':(5.0,6,-1),
        'F6':(5.0,6,-1),'F7':(5.0,7,-1),'F8':(5.0,8,-1),'F9':(5.5,9,-1)}
 for k,(e,f,r) in EXTRA.items():

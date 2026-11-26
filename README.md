@@ -27,14 +27,14 @@ Run the scripts in this order from the repository folder:
 
 The annealing uses fixed seeds, so steps 3 and 4 reproduce the layouts and scores in the paper exactly. Set the environment variable `ITERS=20000` for a quick test run of step 3.
 
-Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). The Mandarin-extended keyboard puts Taiwanese tones on F1–F9 and has no phone version, so only its desktop cost is reported (desktop index 123.9).
+Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). The Mandarin-extended keyboard puts Taiwanese tones on F1–F9 and has no phone version, so only its desktop cost is reported (desktop index 124.2).
 
 | Layout | Desktop cost | Phone (s/syllable) | Keys/syllable | Shift or long press | Composite |
 | --- | --- | --- | --- | --- | --- |
 | Taigi-TPS | 7.93 | 1.244 | 3.37 | 0.0% | 100.0 |
 | Wu Shou-li (Taiwanese-dedicated) | 7.69 | 1.274 | 3.50 | 19.1% | 99.6 |
 | Taigi Keyboard (Windows) | 8.22 | 1.295 | 3.52 | 20.5% | 103.8 |
-| Wu Shou-li (Mandarin-extended, desktop only) | 9.83 | — | 3.50 | 19.1% | — |
+| Wu Shou-li (Mandarin-extended, desktop only) | 9.85 | — | 3.50 | 19.1% | — |
 | Taigi Keyboard (Android) | — | 1.402 | 3.74 | 36.7% | — |
 | Layout A (Dachien-preserving) | 7.19 | 1.199 | 3.37 | 0.0% | 93.5 |
 | Layout B (hand-split) | 4.26 | 1.041 | 3.37 | 0.0% | 68.7 |
