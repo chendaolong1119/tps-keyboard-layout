@@ -1,0 +1,9 @@
+layout,desk_cost,phone_s_per_syl,phone_index,keys_per_syl,shift_or_longpress_pct,composite
+Taigi-TPS,7.933,1.244,100.0,3.374,0.0,100.0
+Wu Shou-li (Taiwanese-dedicated),7.689,1.274,102.4,3.502,19.1,99.6
+Taigi Keyboard (Windows),8.22,1.295,104.0,3.517,20.5,103.8
+Taigi Keyboard (Android),,1.402,112.7,3.742,36.7,
+Layout A (Dachien-preserving),7.195,1.199,96.4,3.374,0.0,93.5
+Layout B (hand-split),4.261,1.041,83.6,3.374,0.0,68.7
+Layout C (structured hand-split),4.759,1.073,86.2,3.374,0.0,73.1
+Unconstrained reference,4.247,1.036,83.3,3.374,0.0,68.4
