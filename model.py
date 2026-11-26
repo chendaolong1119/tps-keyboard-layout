@@ -64,6 +64,7 @@ def thumb(pos,last_thumb):
 REACH=lambda pos: 0.03*max(0,3*1.4-pos[1])/1.4
 EFF['TAB']=3.0;FINGER['TAB']=0;ROW['TAB']=1
 PREFIX_PHONE=[(0.5,4*1.4),(1.0,0.0)]  # phone: symbol key (bottom left), then the page tab (top left)
+PREFIX_TAB=True  # True: TPS symbols on a separate page (` Tab key); False: merged into the first page (` key)
 LONG=0.35; SHIFT_DESK=(2.0)  # extra cost of shift (extra keystroke + pinky)
 # ---------- layout evaluation ----------
 def evaluate(layout,phonepos=None,allo=False,precomp=False,detail=False):
@@ -88,8 +89,12 @@ def evaluate(layout,phonepos=None,allo=False,precomp=False,detail=False):
             elif u in layout: cell,layer=layout[u]
             else: miss[u]+=1;continue
             if layer==2:
-                D+=EFF['`']+desk_pair(last,'`')+EFF['TAB']+desk_pair('`','TAB'); last='TAB'; K+=2
-                tap(PREFIX_PHONE[0]); tap(PREFIX_PHONE[1])
+                if PREFIX_TAB:
+                    D+=EFF['`']+desk_pair(last,'`')+EFF['TAB']+desk_pair('`','TAB'); last='TAB'; K+=2
+                    tap(PREFIX_PHONE[0]); tap(PREFIX_PHONE[1])
+                else:
+                    D+=EFF['`']+desk_pair(last,'`'); last='`'; K+=1
+                    tap(PREFIX_PHONE[0])
             # desktop
             D+=EFF[cell]+desk_pair(last,cell)+(SHIFT_DESK if layer==1 else 0)
             K+=1+(1 if layer==1 else 0)

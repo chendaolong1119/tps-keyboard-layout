@@ -3,7 +3,8 @@ entered with ` then Tab (desktop) or the symbol key and a page tab (phone), on t
 related symbol. The freed main-layer keys are re-optimized.
   P  : ㄫ (0.03% of keystrokes) and the already-secondary ㆱ, ˇ, ˆ
   P+ : additionally ㆡ, ㆭ, ㆰ (each 0.3-0.4%), to show the trend
-Usage: python prefix_variants.py      (results in out/prefix_variants.json, out/prefix_scores.csv)"""
+Usage: python prefix_variants.py        (optimize and score; out/prefix_variants.json, out/prefix_scores.csv)
+       python prefix_variants.py score  (re-score the saved variants only)"""
 import json, itertools, csv, os
 from multiprocessing import Pool
 import numpy as np
@@ -72,19 +73,44 @@ def structured(base, moved):
     runs = [opt.anneal(fixed, {u: right for u in U if u not in fixed}, iters=150000, seed=s) for s in range(4)]
     return min(runs, key=lambda r: r[0])[1]
 
-def with_prefix(lay, moved):
+def with_prefix(lay, moved, merged=False):
+    from prefix_panel import panel
     d = full_main(lay)
-    for u in list(moved) + ['ㆱ', 'ˇ', 'ˆ']:
-        r = RELATED[u]
-        key = lay.get(r) or lay.get(RELATED.get(r, ''))
-        d[u] = (key, 2)
+    for u, key in panel(lay, moved, merged).items():
+        if u in RELATED: d[u] = (key, 2)
     for e, b in {'ㆴ': 'ㄅ', 'ㆵ': 'ㄉ', 'ㆻ': 'ㄍ', 'ㆷ': 'ㄏ'}.items(): d[e] = (lay[b], 0)
     return d
 
 def full_main(lay):
     return {u: (c, 0) for u, c in lay.items()}
 
+def score(res=None):
+    """Score the variants twice: TPS symbols on a separate page (` Tab key) and merged into
+    the first page of the panel (` key). The layouts do not depend on this choice, because the
+    annealing ignores moved units."""
+    import layouts
+    if res is None: res = json.load(open(OUT / 'prefix_variants.json', encoding='utf-8'))
+    ref = model.evaluate(layouts.TPS, allo=True)
+    base = json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))
+    rows = [(n, '-', full(base[n])) for n in ('A', 'B', 'C')]
+    for page in ('separate', 'merged'):
+        for v, moved in VARIANTS.items():
+            for n in ('A', 'B', 'C'):
+                rows.append((f'{n}-{v}', page, with_prefix(res[f'{n}-{v}'], moved, page == 'merged')))
+    with open(OUT / 'prefix_scores.csv', 'w', newline='', encoding='utf-8') as fh:
+        w = csv.writer(fh); w.writerow(['layout', 'prefix_page', 'desk_index', 'phone_index', 'keys_per_syl', 'composite'])
+        for name, page, lay in rows:
+            model.PREFIX_TAB = page != 'merged'
+            r = model.evaluate(lay)
+            di, pi = 100 * r['desk'] / ref['desk'], 100 * r['phone'] / ref['phone']
+            w.writerow([name, page, round(di, 1), round(pi, 1), round(r['keys'], 3), round((di + pi) / 2, 1)])
+            print(f"{name:8s} {page:8s} desk_index={di:.1f} phone_index={pi:.1f} keys={r['keys']:.3f} composite={(di+pi)/2:.1f}")
+    model.PREFIX_TAB = True
+
 if __name__ == '__main__':
+    import sys
+    if sys.argv[1:] == ['score']:
+        score(); raise SystemExit
     jobs = [(v, m, s) for v in VARIANTS for m in ('A', 'B') for s in range(1, 7)]
     best = {}
     with Pool() as p:
@@ -96,17 +122,4 @@ if __name__ == '__main__':
         res[f'B-{v}'] = best[(v, 'B')][1]
         res[f'C-{v}'] = structured(best[(v, 'B')][1], moved)
     json.dump(res, open(OUT / 'prefix_variants.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    import layouts
-    ref = model.evaluate(layouts.TPS, allo=True)
-    base = json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))
-    rows = [(n, full(base[n])) for n in ('A', 'B', 'C')]
-    for v, moved in VARIANTS.items():
-        for n in ('A', 'B', 'C'):
-            rows.append((f'{n}-{v}', with_prefix(res[f'{n}-{v}'], moved)))
-    with open(OUT / 'prefix_scores.csv', 'w', newline='', encoding='utf-8') as fh:
-        w = csv.writer(fh); w.writerow(['layout', 'desk_index', 'phone_index', 'keys_per_syl', 'composite'])
-        for name, lay in rows:
-            r = model.evaluate(lay)
-            di, pi = 100 * r['desk'] / ref['desk'], 100 * r['phone'] / ref['phone']
-            w.writerow([name, round(di, 1), round(pi, 1), round(r['keys'], 3), round((di + pi) / 2, 1)])
-            print(f"{name:8s} desk_index={di:.1f} phone_index={pi:.1f} keys={r['keys']:.3f} composite={(di+pi)/2:.1f}")
+    score(res)

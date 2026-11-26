@@ -24,7 +24,7 @@ Run the scripts in this order from the repository folder:
 | 3 | `python optimize_all.py` | `out/runs/` (18 annealing runs, about 1 minute on 2 cores) |
 | 4 | `python evaluate.py` | `out/layouts_proposed.json`, `out/scores.csv` |
 | 5 | `python figures_proposed.py` and `python figures_existing.py` | `out/figures/*.png` |
-| 6 (optional) | `python prefix_variants.py` | `out/prefix_variants.json`, `out/prefix_scores.csv` (prefix-key variants A-P, B-P, C-P) |
+| 6 (optional) | `python prefix_variants.py` | `out/prefix_variants.json`, `out/prefix_scores.csv` (prefix-key variants A-P, B-P, C-P, scored with a merged and a separate prefix page; `python prefix_variants.py score` re-scores only) |
 
 The annealing uses fixed seeds, so steps 3 and 4 reproduce the layouts and scores in the paper exactly. Set the environment variable `ITERS=20000` for a quick test run of step 3.
 
@@ -56,6 +56,8 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `optimize_all.py` | Runs all configurations and seeds |
 | `evaluate.py` | Builds Layout C and scores all layouts |
 | `prefix_variants.py` | Variants that move rare symbols to a ` prefix page and re-optimize the freed keys |
+| `prefix_panel.py` | Key assignment of the prefix panel (merged first page: digit keys keep full-width digits, variants move down the column; U and B left free) |
+| `figures_prefix.py`, `figures_prefix_panel.py` | Figures of the prefix variants and of the prefix panel (`python figures_prefix_panel.py en merged`) |
 | `figures_*.py` | Keyboard figures |
 | `out/` | Results: proposed layouts, scores and figures |
 
