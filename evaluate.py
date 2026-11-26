@@ -67,6 +67,7 @@ if __name__ == '__main__':
     rows = [('Taigi-TPS', layouts.TPS, None, dict(allo=True)),
             ('Wu Shou-li (Taiwanese-dedicated)', layouts.WSL, None, dict(allo=True, precomp=True)),
             ('Taigi Keyboard (Windows)', layouts.TKW, None, dict(allo=True, precomp=True)),
+            ('Wu Shou-li (Mandarin-extended)', layouts.WSL_HUA, 'desktop', dict(allo=True, precomp=True)),
             ('Taigi Keyboard (Android)', and_lay, and_pos, dict(allo=True, precomp=True)),
             ('Layout A (Dachien-preserving)', full(prop['A']), None, {}),
             ('Layout B (hand-split)', full(prop['B']), None, {}),
@@ -76,13 +77,17 @@ if __name__ == '__main__':
         w = csv.writer(fh)
         w.writerow(['layout', 'desk_cost', 'phone_s_per_syl', 'phone_index', 'keys_per_syl', 'shift_or_longpress_pct', 'composite'])
         for name, lay, pos, kw in rows:
-            if pos is not None:
+            desktop_only = pos == 'desktop'
+            if desktop_only:   # no phone version: give extra keys dummy phone positions and drop the phone cost
+                pos = dict(model.PHPOS); pos.update({k: (0.0, 0.0) for k in model.EXTRA})
+            elif pos is not None:
                 for c, _ in lay.values():
                     model.EFF.setdefault(c, 0); model.FINGER.setdefault(c, 0); model.ROW.setdefault(c, 0)
             r = model.evaluate(lay, pos, **kw)
-            desk = None if pos is not None else r['desk']
-            comp = None if desk is None else 50 * (desk / ref['desk'] + r['phone'] / ref['phone'])
+            desk = r['desk'] if (pos is None or desktop_only) else None
+            phone = None if desktop_only else r['phone']
+            comp = None if (desk is None or phone is None) else 50 * (desk / ref['desk'] + phone / ref['phone'])
             sh = shift_share(lay, kw.get('allo', False), kw.get('precomp', False))
-            w.writerow([name, desk and round(desk, 3), round(r['phone'], 3), round(100 * r['phone'] / ref['phone'], 1),
+            w.writerow([name, desk and round(desk, 3), phone and round(phone, 3), phone and round(100 * phone / ref['phone'], 1),
                         round(r['keys'], 3), round(sh, 1), comp and round(comp, 1)])
-            print(f"{name:34s} desk={desk and round(desk,2)} phone={r['phone']:.3f} keys={r['keys']:.2f} shift={sh:.1f}% composite={comp and round(comp,1)}")
+            print(f"{name:34s} desk={desk and round(desk,2)} desk_index={desk and round(100*desk/ref['desk'],1)} phone={phone and round(phone,3)} keys={r['keys']:.2f} shift={sh:.1f}% composite={comp and round(comp,1)}")

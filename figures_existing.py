@@ -12,17 +12,18 @@ def cat(u):
     if not u: return 'none'
     if u in UNUSED: return 'unused'
     if u in INI: return 'ini'
+    if u.startswith('t') and u[1:].isdigit(): return 'tone'
     if u in TONE or u.startswith('入') or u in ('輕聲','neut','ent'): return 'tone'
     if u in ('鼻','nas'): return 'nas'
     return 'rime'
-def draw(rows,offs,fn,title,second='Shift layer',space='Space = tones 1 and 4',space_x=3.3,width=None):
+def draw(rows,offs,fn,title,second='Shift layer',space='Space = tones 1 and 4',space_x=3.3,width=None,grey=()):
     W=width or (max(o+len(r) for r,o in zip(rows,offs))+0.2)
     n=len(rows)
     fig,ax=plt.subplots(figsize=(W*1.03,(n+2.3)*0.98));ax.set_xlim(-0.1,W);ax.set_ylim(-1.1,n+1.3);ax.axis('off')
     for ri,(r,o) in enumerate(zip(rows,offs)):
         for i,(k,u,s) in enumerate(r):
             x=o+i;y=n-ri
-            ax.add_patch(FancyBboxPatch((x+0.05,y+0.05),0.9,0.9,boxstyle='round,pad=0.0,rounding_size=0.12',fc=COL[cat(u)],ec='#888',lw=0.8))
+            ax.add_patch(FancyBboxPatch((x+0.05,y+0.05),0.9,0.9,boxstyle='round,pad=0.0,rounding_size=0.12',fc=COL['unused' if k in grey else cat(u)],ec='#888',lw=0.8))
             if k: ax.text(x+0.13,y+0.82,k,fontsize=8,color='#777',va='top')
             if u:
                 fs=20 if len(u)==1 else 11
@@ -63,3 +64,12 @@ AR=[[('1','ㆠ',''),('2','ˋ',''),('3','˪',''),('4','ㆣ',''),('5','ˊ',''),('6
 [('','ㄇ','ㆬ'),('','ㄋ','ㄣ'),('','ㄫ','ㆭㄥ'),('','ㄘ','ㄑ'),('','ㄜ',''),('','ㆦ',''),('','ㄢ',''),('','ㆰ','ㆱ'),('','；','')],
 [('','ㄌ',''),('','ㆡ','ㆢ'),('','ㄙ','ㄒ'),('','ㆨ',''),('','ㆤ','ㄝ')]]
 draw(AR,[0,0,0,0,1.2],'ex_AND.png','Taigi Keyboard (Android)',second='long press; digits on long press in the top row',space='Space = tones 1 and 4',space_x=5.0)
+
+# Wu Shou-li IME, Mandarin-extended keyboard (Academia Sinica, 2012b): Taiwanese tones on F1-F9
+HUA=[[('F1','t1',''),('F2','ˋ',''),('F3','˪',''),('F4','t4',''),('F5','ˊ',''),('F6','ˇ',''),('F7','˫',''),('F8','˙',''),('F9','ˆ','')],
+ [('`','ㆨ',''),('1','ㄅ','ㆠ'),('2','ㄉ','dd'),('3','ˇ',''),('4','ˋ',''),('5','ㄓ',''),('6','ˊ',''),('7','˙',''),('8','ㄚ','ㆩ'),('9','ㄞ','ㆮ'),('0','ㄢ',''),('-','ㄦ',''),('=','ㆦ','ㆧ')],
+ [('Q','ㄆ',''),('W','ㄊ',''),('E','ㄍ','ㆣ'),('R','ㄐ','ㆢ'),('T','ㄔ',''),('Y','ㄗ','ㆡ'),('U','ㄧ','ㆪ'),('I','ㄛ',''),('O','ㄟ',''),('P','ㄣ',''),('[','ㆰ',''),(']','ㆱ',''),('\\','ㄫ','ㆭ')],
+ [('A','ㄇ','ㆬ'),('S','ㄋ',''),('D','ㄎ',''),('F','ㄑ',''),('G','ㄕ',''),('H','ㄘ',''),('J','ㄨ','ㆫ'),('K','ㄜ','eer'),('L','ㄠ','ㆯ'),(';','ㄤ',''),("'",'ㆲ','')],
+ [('Z','ㄈ',''),('X','ㄌ',''),('C','ㄏ','ㄬ'),('V','ㄒ',''),('B','ㄖ',''),('N','ㄙ',''),('M','ㄩ',''),(',','ㆤ','ㆥ'),('.','ㄡ',''),('/','ㄥ','')]]
+draw(HUA,[1.0,0,1.5,1.75,2.25],'ex_WSL_HUA.png','Wu Shou-li IME, Mandarin-extended keyboard; Taiwanese tones on F1-F9',
+     space='Space = tones 1 and 4',space_x=4.5,grey={'3','4','5','6','7','-','T','I','O','G','Z','B','M','.'})
