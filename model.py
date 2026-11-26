@@ -62,29 +62,39 @@ def thumb(pos,last_thumb):
     if pos[0]>5.8: return 'R'
     return 'R' if last_thumb=='L' else 'L'
 REACH=lambda pos: 0.03*max(0,3*1.4-pos[1])/1.4
+EFF['TAB']=3.0;FINGER['TAB']=0;ROW['TAB']=1
+PREFIX_PHONE=[(0.5,4*1.4),(1.0,0.0)]  # phone: symbol key (bottom left), then the page tab (top left)
 LONG=0.35; SHIFT_DESK=(2.0)  # extra cost of shift (extra keystroke + pinky)
 # ---------- layout evaluation ----------
 def evaluate(layout,phonepos=None,allo=False,precomp=False,detail=False):
-    """layout: dict unit-> (cell, layer) layer 0 main,1 secondary. unit 'SP' implicit."""
+    """layout: dict unit -> (cell, layer); layer 0 main, 1 secondary (Shift / long press),
+    2 prefix page (desktop: ` then Tab then the key; phone: symbol key, page tab, then the key)."""
     pp=phonepos or PHPOS
     D=0;P=0;K=0;nsyl=0;miss=collections.Counter()
     for seq in unit_stream():
         seq=surface(seq,allo,precomp)
         last=None;tpos={'L':None,'R':None};lt=None
-        for u in seq:
-            if u=='␣': cell,layer='SP',0; nsyl+=1
-            elif u in layout: cell,layer=layout[u]
-            else: miss[u]+=1;continue
-            # desktop
-            D+=EFF[cell]+desk_pair(last,cell)+(SHIFT_DESK if layer else 0)
-            K+=1+(1 if layer else 0)
-            if u in 'ˋ˪ˊˇ˫˙ˆ': nsyl+=1
-            # phone
-            pos=pp[cell];th=thumb(pos,lt)
+        def tap(pos,extra=0.0):
+            nonlocal P,lt
+            th=thumb(pos,lt)
             if tpos[th] is None: mt=0.25
             else:
                 own=fitts(dist(tpos[th],pos))
                 mt=own if th==lt else max(0.12,own-0.10)
-            P+=mt+REACH(pos)+(LONG if layer else 0)
-            tpos[th]=pos;lt=th;last=cell
+            P+=mt+REACH(pos)+extra
+            tpos[th]=pos;lt=th
+        for u in seq:
+            if u=='␣': cell,layer='SP',0; nsyl+=1
+            elif u in layout: cell,layer=layout[u]
+            else: miss[u]+=1;continue
+            if layer==2:
+                D+=EFF['`']+desk_pair(last,'`')+EFF['TAB']+desk_pair('`','TAB'); last='TAB'; K+=2
+                tap(PREFIX_PHONE[0]); tap(PREFIX_PHONE[1])
+            # desktop
+            D+=EFF[cell]+desk_pair(last,cell)+(SHIFT_DESK if layer==1 else 0)
+            K+=1+(1 if layer==1 else 0)
+            if u in 'ˋ˪ˊˇ˫˙ˆ': nsyl+=1
+            # phone
+            tap(pp[cell],LONG if layer==1 else 0.0)
+            last=cell
     return dict(desk=D/nsyl,phone=P/nsyl,keys=K/nsyl,miss=dict(miss))

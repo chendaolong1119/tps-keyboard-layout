@@ -55,7 +55,7 @@ def shift_share(lay, allo, precomp):
     tot = sh = 0
     for (I, f, t), c in data:
         seq = model.surface(syl_units(I, f, t), allo=allo, precomp=precomp); tot += c
-        if any(u in lay and lay[u][1] for u in seq): sh += c
+        if any(u in lay and lay[u][1] == 1 for u in seq): sh += c
     return 100 * sh / tot
 
 if __name__ == '__main__':

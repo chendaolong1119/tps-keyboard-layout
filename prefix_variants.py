@@ -1,0 +1,112 @@
+"""Prefix-key variants (A-P, B-P, C-P): rare symbols move from the main layer to a prefix page
+entered with ` then Tab (desktop) or the symbol key and a page tab (phone), on the key of a
+related symbol. The freed main-layer keys are re-optimized.
+  P  : ㄫ (0.03% of keystrokes) and the already-secondary ㆱ, ˇ, ˆ
+  P+ : additionally ㆡ, ㆭ, ㆰ (each 0.3-0.4%), to show the trend
+Usage: python prefix_variants.py      (results in out/prefix_variants.json, out/prefix_scores.csv)"""
+import json, itertools, csv, os
+from multiprocessing import Pool
+import numpy as np
+import model, opt
+from config import OUT
+from evaluate import best_run, full
+
+ITERS = int(os.environ.get('ITERS', 250000))
+RELATED = {'ㄫ': 'ㄍ', 'ㆡ': 'ㄗ', 'ㆭ': 'ㄥ', 'ㆰ': 'ㄢ', 'ㆱ': 'ㆰ', 'ˇ': 'ˋ', 'ˆ': 'ˊ'}
+VARIANTS = {'P': ['ㄫ'], 'P+': ['ㄫ', 'ㆡ', 'ㆭ', 'ㆰ']}
+U0 = list(opt.U)
+
+def reduce_units(moved):
+    """Rebuild the annealing statistics without the moved units."""
+    U = [u for u in U0 if u not in moved]
+    idx = {u: i for i, u in enumerate(U)}; SP = len(U); n = SP + 1
+    c1 = np.zeros(n); c2 = np.zeros((n, n))
+    for seq in model.unit_stream():
+        prev = None
+        for u in seq:
+            u = opt.ENTMAP.get(u, u)
+            if u in opt.RARE or u in moved: prev = None; continue
+            i = SP if u == '␣' else idx[u]
+            c1[i] += 1
+            if prev is not None: c2[prev, i] += 1
+            prev = i
+    opt.U, opt.idx, opt.SP, opt.n, opt.c1, opt.c2 = U, idx, SP, n, c1, c2
+
+def run(args):
+    vname, mode, seed = args
+    moved = VARIANTS[vname]; reduce_units(moved)
+    ini = [u for u in opt.INITIALS if u not in moved]
+    if mode == 'A': fixed, allowed = opt.DAQIAN, {}
+    else: fixed, allowed = {}, {u: opt.LEFT for u in ini}
+    return vname, mode, seed, opt.anneal(fixed, allowed, iters=ITERS, seed=seed)
+
+def structured(base, moved):
+    reduce_units(moved)
+    U, idx, C, cost = opt.U, opt.idx, opt.C, opt.cost
+    cellidx = {c: i for i, c in enumerate(C)}
+    cols = [['1','q','a','z'], ['2','w','s','x'], ['3','e','d','c'], ['4','r','f','v'], ['5','t','g','b']]
+    g0 = {'lab': ['ㄇ','ㄆ','ㄅ','ㆠ'], 'alv': ['ㄋ','ㄊ','ㄉ','ㄌ'], 'vel': ['ㄫ','ㄎ','ㄍ','ㆣ'], 'aff': [None,'ㄘ','ㄗ','ㆡ']}
+    groups = {g: [u if u not in moved else None for u in v] for g, v in g0.items()}
+    extra = ['ㄙ', 'ㄏ', 'ˋ', 'ˊ', '˫']
+    base_asg = np.array([cellidx[base[u]] for u in U] + [cellidx['SP']])
+    best = None
+    for perm in itertools.permutations(range(5), 4):
+        asg = base_asg.copy(); free = []
+        for g, ci in zip(groups, perm):
+            for r, u in enumerate(groups[g]):
+                if u: asg[idx[u]] = cellidx[cols[ci][r]]
+                else: free.append(cols[ci][r])
+        free += cols[[c for c in range(5) if c not in perm][0]]
+        for p2 in itertools.permutations(free, 5):
+            for u, c in zip(extra, p2): asg[idx[u]] = cellidx[c]
+            v = cost(asg)[0]
+            if best is None or v < best[0]: best = (v, perm, p2)
+    _, perm, p2 = best
+    lay = {u: base[u] for u in U}
+    for g, ci in zip(groups, perm):
+        for r, u in enumerate(groups[g]):
+            if u: lay[u] = cols[ci][r]
+    for u, c in zip(extra, p2): lay[u] = c
+    fixed = {u: c for u, c in lay.items() if u in opt.INITIALS or u in extra}
+    right = [c for c in opt.CELLS if c not in fixed.values()]
+    runs = [opt.anneal(fixed, {u: right for u in U if u not in fixed}, iters=150000, seed=s) for s in range(4)]
+    return min(runs, key=lambda r: r[0])[1]
+
+def with_prefix(lay, moved):
+    d = full_main(lay)
+    for u in list(moved) + ['ㆱ', 'ˇ', 'ˆ']:
+        r = RELATED[u]
+        key = lay.get(r) or lay.get(RELATED.get(r, ''))
+        d[u] = (key, 2)
+    for e, b in {'ㆴ': 'ㄅ', 'ㆵ': 'ㄉ', 'ㆻ': 'ㄍ', 'ㆷ': 'ㄏ'}.items(): d[e] = (lay[b], 0)
+    return d
+
+def full_main(lay):
+    return {u: (c, 0) for u, c in lay.items()}
+
+if __name__ == '__main__':
+    jobs = [(v, m, s) for v in VARIANTS for m in ('A', 'B') for s in range(1, 7)]
+    best = {}
+    with Pool() as p:
+        for v, m, s, (c, lay) in p.imap_unordered(run, jobs):
+            if (v, m) not in best or c < best[(v, m)][0]: best[(v, m)] = (c, lay)
+    res = {}
+    for v, moved in VARIANTS.items():
+        res[f'A-{v}'] = best[(v, 'A')][1]
+        res[f'B-{v}'] = best[(v, 'B')][1]
+        res[f'C-{v}'] = structured(best[(v, 'B')][1], moved)
+    json.dump(res, open(OUT / 'prefix_variants.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    import layouts
+    ref = model.evaluate(layouts.TPS, allo=True)
+    base = json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))
+    rows = [(n, full(base[n])) for n in ('A', 'B', 'C')]
+    for v, moved in VARIANTS.items():
+        for n in ('A', 'B', 'C'):
+            rows.append((f'{n}-{v}', with_prefix(res[f'{n}-{v}'], moved)))
+    with open(OUT / 'prefix_scores.csv', 'w', newline='', encoding='utf-8') as fh:
+        w = csv.writer(fh); w.writerow(['layout', 'desk_index', 'phone_index', 'keys_per_syl', 'composite'])
+        for name, lay in rows:
+            r = model.evaluate(lay)
+            di, pi = 100 * r['desk'] / ref['desk'], 100 * r['phone'] / ref['phone']
+            w.writerow([name, round(di, 1), round(pi, 1), round(r['keys'], 3), round((di + pi) / 2, 1)])
+            print(f"{name:8s} desk_index={di:.1f} phone_index={pi:.1f} keys={r['keys']:.3f} composite={(di+pi)/2:.1f}")
