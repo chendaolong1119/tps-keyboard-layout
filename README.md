@@ -56,8 +56,9 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `optimize_all.py` | Runs all configurations and seeds |
 | `evaluate.py` | Builds Layout C and scores all layouts |
 | `prefix_variants.py` | Variants that move rare symbols to a ` prefix page and re-optimize the freed keys |
-| `prefix_panel.py` | Key assignment of the prefix panel (merged first page: digit keys keep full-width digits, variants move down the column; U and B left free) |
-| `figures_prefix.py`, `figures_prefix_panel.py` | Figures of the prefix variants and of the prefix panel (`python figures_prefix_panel.py en merged`) |
+| `prefix_panel.py` | Key assignment of the prefix panel (merged first page: digit keys keep their digits, variants move down the column, a variant from 6 starts at T) |
+| `symbol_page.py` | First symbol page of each layout: TPS variants, digits and common full-width punctuation on the 41-key grid, plus an extra row |
+| `figures_prefix.py`, `figures_prefix_panel.py`, `figures_symbol_page.py` | Figures of the prefix variants and of the prefix panel (`python figures_prefix_panel.py en merged`) |
 | `figures_*.py` | Keyboard figures |
 | `out/` | Results: proposed layouts, scores and figures |
 

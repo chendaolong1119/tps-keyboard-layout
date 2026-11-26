@@ -4,16 +4,18 @@ Every variant sits on the key of a related main-layer symbol. Two designs:
   separate : TPS symbols on their own page (` Tab key); any key may be used.
   merged   : TPS symbols share the first page with full-width digits and punctuation (` key).
              The digit keys keep their full-width digits, so a variant whose related symbol is
-             on a digit key moves straight down the same column to the first free letter key.
+             on a digit key moves straight down the same column to the first free letter key;
+             a variant from 6 starts at T, so that it stays on the left half with the 4/5 column.
              (Bottom-row collisions, which occur only in the P+ variants, take the nearest free key.)
-             U and B stay free for the Unicode and Big5 code entry of the Microsoft Bopomofo IME.
+             (U and B are not reserved: a TPS input method does not have to share the Microsoft
+             Bopomofo IME's `U and `B code entry.)
 """
 from model import ROWS
 
 REL = {'ㄫ': 'ㄍ', 'ㆡ': 'ㄗ', 'ㆭ': 'ㄥ', 'ㆰ': 'ㄢ', 'ㆱ': 'ㆰ', 'ˇ': 'ˋ', 'ˆ': 'ˊ',
        'ㆨ': 'ㄨ', 'ㄛ': 'ㆦ', 'ㄝ': 'ㆤ', 'ㄬ': 'ㄋ', 'dd': 'ㄉ', 'eer': 'ㄜ'}
 EXTRA = ['ㆨ', 'ㄛ', 'ㄝ', 'ㄬ', 'dd', 'eer']     # not in the corpus; shown on the panel only
-RESERVED = {'u', 'b'}
+RESERVED = set()
 DIGITS = set('1234567890')
 POS = {c: (ri, i) for ri, r in enumerate(ROWS) for i, c in enumerate(r)}
 
@@ -33,6 +35,8 @@ def panel(lay, moved, merged):
         k = related_key(lay, v)
         if k in DIGITS or k in taken:
             ri, i = POS[k]
+            if k == '6':        # 6 is a left-index key for most typists: keep its variant on the left half (T)
+                ri, i = POS['t']; ri -= 1
             k = None
             for r2 in range(ri + 1, len(ROWS)):
                 if i < len(ROWS[r2]) and ROWS[r2][i] not in taken | DIGITS:
