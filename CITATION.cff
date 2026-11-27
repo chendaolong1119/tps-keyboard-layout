@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "tps-keyboard-layout: Code and results for TPS keyboard layout evaluation and optimization"
+type: software
+authors:
+  - family-names: Chen
+    given-names: Dao-Long
+    affiliation: National Kaohsiung University of Science and Technology
+version: 1.0.0
+date-released: 2026-11-27
+license: MIT
+repository-code: "https://github.com/chendaolong1119/tps-keyboard-layout"
+abstract: >-
+  Corpus-based evaluation and optimization of Taiwanese Phonetic Symbol (TPS,
+  方音符號) keyboard layouts for desktop and mobile input. Includes corpus
+  extraction from ChhoeTaigiDatabase, TL-to-TPS conversion, a desktop and
+  two-thumb phone cost model, simulated annealing and exhaustive search for
+  three proposed layouts, the prefix-key symbol page, and all figures.
+keywords:
+  - Taiwanese Phonetic Symbols
+  - Zhuyin
+  - keyboard layout
+  - text entry
+  - mobile input
