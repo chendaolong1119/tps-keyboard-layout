@@ -33,9 +33,9 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | Layout | Desktop cost | Phone (s/syllable) | Keys/syllable | Shift or long press | Composite |
 | --- | --- | --- | --- | --- | --- |
 | Taigi-TPS | 8.06 | 1.208 | 3.22 | 0.0% | 100.0 |
-| Wu Shou-li (Taiwanese-dedicated) | 7.69 | 1.274 | 3.50 | 19.1% | 100.4 |
+| Wu Shou-Li (Taiwanese-dedicated) | 7.69 | 1.274 | 3.50 | 19.1% | 100.4 |
 | Taigi Keyboard (Windows) | 8.22 | 1.295 | 3.52 | 20.5% | 104.6 |
-| Wu Shou-li (Mandarin-extended, desktop only) | 9.85 | — | 3.50 | 19.1% | — |
+| Wu Shou-Li (Mandarin-extended, desktop only) | 9.85 | — | 3.50 | 19.1% | — |
 | Taigi Keyboard (Android) | — | 1.402 | 3.74 | 36.7% | — |
 | Layout A (Dachien-preserving) | 7.19 | 1.199 | 3.37 | 0.0% | 94.3 |
 | Layout B (hand-split) | 4.26 | 1.041 | 3.37 | 0.0% | 69.5 |
@@ -51,7 +51,7 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `extract.py` | Extracts and parses Tâi-lô syllables from the dictionary example sentences |
 | `units.py` | Tâi-lô to TPS keystroke-unit conversion |
 | `model.py` | Key grid, desktop cost and mobile (Fitts' law) cost model |
-| `layouts.py` | Existing layouts: Taigi-TPS, Wu Shou-li (Taiwanese-dedicated and Mandarin-extended), Taigi Keyboard (Windows, Android) |
+| `layouts.py` | Existing layouts: Taigi-TPS, Wu Shou-Li (Taiwanese-dedicated and Mandarin-extended), Taigi Keyboard (Windows, Android) |
 | `opt.py` | Simulated-annealing search for one configuration and seed |
 | `optimize_all.py` | Runs all configurations and seeds |
 | `evaluate.py` | Builds Layout C and scores all layouts |

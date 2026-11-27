@@ -50,7 +50,7 @@ eff_rows=[[4.0,3.5,3.0,3.0,3.5,4.0,3.0,3.0,3.5,4.0,4.5],[2.5,1.8,1.3,1.3,2.0,2.3
 for ri,r in enumerate(ROWS):
     for i,c in enumerate(r): EFF[c]=eff_rows[ri][i]
 EFF['SP']=0.6;FINGER['SP']=5;ROW['SP']=4
-# Keys outside the 41-key grid, used only by desktop-only layouts (Wu Shou-li Mandarin-extended keyboard).
+# Keys outside the 41-key grid, used only by desktop-only layouts (Wu Shou-Li Mandarin-extended keyboard).
 # Row -1 = function-key row. Efforts extrapolate the grid: farther and pinky-heavier keys cost more.
 EXTRA={'`':(4.5,0,0),'=':(5.0,9,0),'[':(3.0,9,1),']':(3.5,9,1),'\\':(5.5,9,0),"'":(2.0,9,2),
        'F1':(5.5,0,-1),'F2':(5.0,1,-1),'F3':(5.0,2,-1),'F4':(5.0,3,-1),'F5':(5.0,6,-1),

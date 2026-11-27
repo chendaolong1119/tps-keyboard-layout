@@ -65,9 +65,9 @@ if __name__ == '__main__':
     ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
     and_lay, and_pos = layouts.android(False)
     rows = [('Taigi-TPS', layouts.TPS, None, dict(allo=True, tps_ent=True)),
-            ('Wu Shou-li (Taiwanese-dedicated)', layouts.WSL, None, dict(allo=True, precomp=True)),
+            ('Wu Shou-Li (Taiwanese-dedicated)', layouts.WSL, None, dict(allo=True, precomp=True)),
             ('Taigi Keyboard (Windows)', layouts.TKW, None, dict(allo=True, precomp=True)),
-            ('Wu Shou-li (Mandarin-extended)', layouts.WSL_HUA, 'desktop', dict(allo=True, precomp=True)),
+            ('Wu Shou-Li (Mandarin-extended)', layouts.WSL_HUA, 'desktop', dict(allo=True, precomp=True)),
             ('Taigi Keyboard (Android)', and_lay, and_pos, dict(allo=True, precomp=True)),
             ('Layout A (Dachien-preserving)', full(prop['A']), None, {}),
             ('Layout B (hand-split)', full(prop['B']), None, {}),
