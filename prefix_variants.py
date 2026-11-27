@@ -90,7 +90,7 @@ def score(res=None):
     annealing ignores moved units."""
     import layouts
     if res is None: res = json.load(open(OUT / 'prefix_variants.json', encoding='utf-8'))
-    ref = model.evaluate(layouts.TPS, allo=True)
+    ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
     base = json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))
     rows = [(n, '-', full(base[n])) for n in ('A', 'B', 'C')]
     for page in ('separate', 'merged'):

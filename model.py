@@ -10,7 +10,24 @@ def unit_stream():
         yield seq
 ALLO={'ㄗ':'ㄐ','ㄘ':'ㄑ','ㄙ':'ㄒ','ㆡ':'ㆢ'}
 NASMAP={'ㄚ':'ㆩ','ㄧ':'ㆪ','ㄨ':'ㆫ','ㆤ':'ㆥ','ㆦ':'ㆧ','ㄞ':'ㆮ','ㄠ':'ㆯ','ㄜ':'ㆧ'}
-def surface(seq,allo=False,precomp=False):
+# Taigi-TPS types an entering syllable as the rime with the matching coda plus the entering key
+# (．, on the key of the tone-8 dot): -p as the m-coda rime, -t as the n-coda rime, -k as the
+# ng-coda rime, -h as the bare rime; tones 4 and 8 are not distinguished (README of rime-taigi-tps).
+ENT_P={'ㄚ':['ㆰ'],'ㆦ':['ㆱ']}; ENT_T={'ㄚ':['ㄢ']}; ENT_K={'ㄚ':['ㄤ'],'ㆦ':['ㆲ'],'ㄧ':['ㄧ','ㄥ']}
+def tps_entering(seq):
+    out=[]
+    for u in seq:
+        if u in ('␣','˙') and out and out[-1] in 'ㆴㆵㆻㆷ':
+            e=out.pop()
+            if e!='ㆷ':
+                v=out.pop()
+                tab={'ㆴ':(ENT_P,'ㆬ'),'ㆵ':(ENT_T,'ㄣ'),'ㆻ':(ENT_K,'ㆭ')}[e]
+                out+=tab[0].get(v,[v,tab[1]])
+            out.append('˙'); continue
+        out.append(u)
+    return out
+def surface(seq,allo=False,precomp=False,tps_ent=False):
+    if tps_ent: seq=tps_entering(seq)
     out=[]
     for i,u in enumerate(seq):
         if allo and u in ALLO and i+1<len(seq) and seq[i+1]=='ㄧ': u=ALLO[u]
@@ -67,13 +84,13 @@ PREFIX_PHONE=[(0.5,4*1.4),(1.0,0.0)]  # phone: symbol key (bottom left), then th
 PREFIX_TAB=True  # True: TPS symbols on a separate page (` Tab key); False: merged into the first page (` key)
 LONG=0.35; SHIFT_DESK=(2.0)  # extra cost of shift (extra keystroke + pinky)
 # ---------- layout evaluation ----------
-def evaluate(layout,phonepos=None,allo=False,precomp=False,detail=False):
+def evaluate(layout,phonepos=None,allo=False,precomp=False,detail=False,tps_ent=False):
     """layout: dict unit -> (cell, layer); layer 0 main, 1 secondary (Shift / long press),
     2 prefix page (desktop: ` then Tab then the key; phone: symbol key, page tab, then the key)."""
     pp=phonepos or PHPOS
     D=0;P=0;K=0;nsyl=0;miss=collections.Counter()
     for seq in unit_stream():
-        seq=surface(seq,allo,precomp)
+        seq=surface(seq,allo,precomp,tps_ent)
         last=None;tpos={'L':None,'R':None};lt=None
         def tap(pos,extra=0.0):
             nonlocal P,lt

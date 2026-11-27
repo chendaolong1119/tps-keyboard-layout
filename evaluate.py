@@ -62,9 +62,9 @@ if __name__ == '__main__':
     prop = {'A': best_run('A'), 'B': best_run('B'), 'free': best_run('free')}
     prop['C'] = structured(prop['B'])
     json.dump(prop, open(OUT / 'layouts_proposed.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    ref = model.evaluate(layouts.TPS, allo=True)
+    ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
     and_lay, and_pos = layouts.android(False)
-    rows = [('Taigi-TPS', layouts.TPS, None, dict(allo=True)),
+    rows = [('Taigi-TPS', layouts.TPS, None, dict(allo=True, tps_ent=True)),
             ('Wu Shou-li (Taiwanese-dedicated)', layouts.WSL, None, dict(allo=True, precomp=True)),
             ('Taigi Keyboard (Windows)', layouts.TKW, None, dict(allo=True, precomp=True)),
             ('Wu Shou-li (Mandarin-extended)', layouts.WSL_HUA, 'desktop', dict(allo=True, precomp=True)),
