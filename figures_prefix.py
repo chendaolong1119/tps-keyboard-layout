@@ -1,6 +1,6 @@
 """Draw the prefix-key variants (A-P, B-P, C-P): main layer plus the symbols
 reached through the ` prefix page, shown in purple at the lower right of the key
-that holds the related symbol. Usage: python figures_prefix.py [en|zh]"""
+given by prefix_panel.py (merged symbol page). Usage: python figures_prefix.py [en|zh]"""
 import json, sys, matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -10,8 +10,6 @@ from model import ROWS
 from config import OUT
 INITIALS = list('ㄅㄆㄇㆠㄉㄊㄋㄌㄍㄎㄫㆣㄏㄗㄘㄙㆡ')
 AUTO = {'ㄅ': 'ㆴ', 'ㄉ': 'ㆵ', 'ㄍ': 'ㆻ', 'ㄏ': 'ㆷ'}
-# prefix-page symbols of variant P and the symbol whose key they share
-PREFIX = {'ㄫ': 'ㄍ', 'ㆱ': 'ㆰ', 'ˇ': 'ˋ', 'ˆ': 'ˊ'}
 TONES = 'ˋ˪ˊ˫˙'
 COL = {'ini': '#dbe9f6', 'rime': '#fbe3cf', 'tone': '#e2f0d9', 'nas': '#eadcf2', 'none': '#f2f2f2'}
 LANG = sys.argv[1] if len(sys.argv) > 1 else 'en'
@@ -36,9 +34,10 @@ def cat(u):
 
 def draw(lay, fn, title):
     inv = {c: u for u, c in lay.items()}
+    from prefix_panel import panel
     pre = {}
-    for p, r in PREFIX.items():
-        if r in lay: pre[lay[r]] = pre.get(lay[r], '') + p
+    for p, k in panel(lay, ['ㄫ'], True).items():   # merged symbol page (prefix_panel.py)
+        pre[k] = pre.get(k, '') + p
     fig, ax = plt.subplots(figsize=(11.5, 4.6)); ax.set_xlim(-0.1, 11.3); ax.set_ylim(-0.3, 5.3); ax.axis('off')
     offs = [0, 0.5, 0.75, 1.25]
     for ri, r in enumerate(ROWS):
