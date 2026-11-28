@@ -23,14 +23,16 @@ nsyl=c1[SP]+sum(c1[idx[t]] for t in 'ˋ˪ˊ˫˙')
 C=CELLS+['SP'];m=len(C)
 E=np.array([EFF[c] for c in C])
 PD=np.array([[desk_pair(a,b) for b in C] for a in C])
-def th(c): x=PHPOS[c][0]; return 'L' if x<5.2 else ('R' if x>5.8 else 'C')
+def th(c): x=PHPOS[c][0]; return 'L' if x<model.PHONE_CENTER-0.3 else ('R' if x>model.PHONE_CENTER+0.3 else 'C')
 PP=np.zeros((m,m))
 for i,a in enumerate(C):
     for j,b in enumerate(C):
         ta,tb=th(a),th(b)
         same = ta==tb and ta!='C'
         PP[i,j]=(fitts(dist(PHPOS[a],PHPOS[b])) if same else 0.17)+REACH(PHPOS[b])
-REF=(7.933,1.244)
+# Weights of the annealing objective: the Taigi-TPS desktop and phone costs, the same reference as the composite score.
+import layouts
+_r=model.evaluate(layouts.TPS,allo=True,tps_ent=True); REF=(_r['desk'],_r['phone'])
 def cost(asg):
     # asg: array len n of cell indices (SP fixed to last cell)
     d=(c1*E[asg]).sum()+(c2*PD[np.ix_(asg,asg)]).sum()

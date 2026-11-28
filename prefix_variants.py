@@ -3,8 +3,9 @@ entered with ` then Tab (desktop) or the symbol key and a page tab (phone), on t
 related symbol. The freed main-layer keys are re-optimized.
   P  : ㄫ (0.03% of keystrokes) and the already-secondary ㆱ, ˇ, ˆ
   P+ : additionally ㆡ, ㆭ, ㆰ (each 0.3-0.4%), to show the trend
-  Layout A-P is not re-optimized: it is Layout A with ㄫ kept on B and ˇ, ˆ moved from Shift+4/6
-  to the free 5 and - keys, so only ㆱ (and the panel-only symbols) are on the prefix page.
+  Layout A-P is not re-optimized: it is Layout A with ㄫ kept on its main-layer key, ˇ moved from
+  Shift+4 to 3 (its Dachien position, freed by moving ㆡ to the free - key) and ˆ from Shift+6 to
+  the free 5 key, so only ㆱ (and the panel-only symbols) are on the prefix page.
 Usage: python prefix_variants.py        (optimize and score; out/prefix_variants.json, out/prefix_scores.csv)
        python prefix_variants.py score  (re-score the saved variants only)"""
 import json, itertools, csv, os
@@ -14,7 +15,8 @@ import model, opt
 from config import OUT
 from evaluate import best_run, full
 
-ITERS = int(os.environ.get('ITERS', 250000))
+ITERS = int(os.environ.get('ITERS', 1000000))
+SEEDS = range(1, 25)
 RELATED = {'ㄫ': 'ㄍ', 'ㆡ': 'ㄗ', 'ㆭ': 'ㄥ', 'ㆰ': 'ㄢ', 'ㆱ': 'ㆰ', 'ˇ': 'ˋ', 'ˆ': 'ˊ'}
 VARIANTS = {'P': ['ㄫ'], 'P+': ['ㄫ', 'ㆡ', 'ㆭ', 'ㆰ']}
 U0 = list(opt.U)
@@ -85,7 +87,7 @@ def with_prefix(lay, moved, merged=False):
 
 def a_p():
     base = json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))['A']
-    return dict(base, **{'ˇ': '5', 'ˆ': '-'})
+    return dict(base, **{'ˇ': '3', 'ㆡ': '-', 'ˆ': '5'})
 
 def full_main(lay):
     return {u: (c, 0) for u, c in lay.items()}
@@ -117,14 +119,23 @@ if __name__ == '__main__':
     import sys
     if sys.argv[1:] == ['score']:
         score(); raise SystemExit
-    jobs = [(v, m, s) for v in VARIANTS for m in ('A', 'B') for s in range(1, 7)]
+    # A-P is not optimized (see a_p); the runs are rescored with the full model (TPS symbols on the
+    # first page of the panel) and the best run is kept, as in evaluate.best_run.
+    jobs = [(v, m, s) for v in VARIANTS for m in ('A', 'B') for s in SEEDS if (v, m) != ('P', 'A')]
+    import layouts
+    ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
+    model.PREFIX_TAB = False
     best = {}
     with Pool() as p:
         for v, m, s, (c, lay) in p.imap_unordered(run, jobs):
-            if (v, m) not in best or c < best[(v, m)][0]: best[(v, m)] = (c, lay)
+            e = model.evaluate(with_prefix(lay, VARIANTS[v], True))
+            comp = e['desk'] / ref['desk'] + e['phone'] / ref['phone']
+            key = (round(comp, 9), s)
+            if (v, m) not in best or key < best[(v, m)][0]: best[(v, m)] = (key, lay)
+    model.PREFIX_TAB = True
     res = {}
     for v, moved in VARIANTS.items():
-        res[f'A-{v}'] = best[(v, 'A')][1] if v != 'P' else a_p()
+        res[f'A-{v}'] = a_p() if v == 'P' else best[(v, 'A')][1]
         res[f'B-{v}'] = best[(v, 'B')][1]
         res[f'C-{v}'] = structured(best[(v, 'B')][1], moved)
     json.dump(res, open(OUT / 'prefix_variants.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

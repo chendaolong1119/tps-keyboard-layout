@@ -16,8 +16,14 @@ def full(lay):
     return d
 
 def best_run(mode):
-    rs = [json.load(open(f, encoding='utf-8')) for f in glob.glob(str(OUT / 'runs' / f'{mode}_*.json'))]
-    return min(rs, key=lambda r: r['cost'])['layout']
+    """The annealing optimizes a bigram approximation of the cost model; its runs are rescored with
+    the full model (composite score), and the best run is kept."""
+    rs = [json.load(open(f, encoding='utf-8')) for f in sorted(glob.glob(str(OUT / 'runs' / f'{mode}_*.json')))]
+    ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
+    def comp(r):
+        e = model.evaluate(full(r['layout']))
+        return e['desk'] / ref['desk'] + e['phone'] / ref['phone']
+    return min(rs, key=lambda r: (round(comp(r), 9), r['seed']))['layout']
 
 def structured(base):
     """Layout C: left half as a place-by-manner grid; exhaustive search, then re-anneal the right half."""
@@ -68,7 +74,7 @@ if __name__ == '__main__':
             ('Wu Shou-Li (Taiwanese-dedicated)', layouts.WSL, None, dict(allo=True, precomp=True)),
             ('Taigi Keyboard (Windows)', layouts.TKW, None, dict(allo=True, precomp=True)),
             ('Wu Shou-Li (Mandarin-extended)', layouts.WSL_HUA, 'desktop', dict(allo=True, precomp=True)),
-            ('Taigi Keyboard (Android)', and_lay, and_pos, dict(allo=True, precomp=True)),
+            ('Taigi Keyboard (Android)', and_lay, and_pos, dict(allo=True, precomp=True, center=layouts.AND_CENTER)),
             ('Layout A (Dachien-preserving)', full(prop['A']), None, {}),
             ('Layout B (hand-split)', full(prop['B']), None, {}),
             ('Layout C (structured hand-split)', full(prop['C']), None, {}),

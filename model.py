@@ -66,25 +66,30 @@ def desk_pair(a,b):
     if a==b: return 0.3
     if FINGER[a]==FINGER[b]: return 2.5+0.5*abs(ROW[a]-ROW[b])
     return 0.4*max(0,abs(ROW[a]-ROW[b])-1)+0.1
-# phone geometry: 大千-style 4 rows, 11-unit wide screen
+# phone geometry: the Dachien-style Zhuyin keyboard of Gboard (Android): four aligned rows of
+# ten keys, ten key widths across; ㄦ (the desktop - key) sits right of the space bar in the bottom
+# bar. Measured on a 1080-pixel-wide screenshot: key width 108 px, row pitch 140 px (1.3 widths),
+# space bar centred at 5.0 widths, ㄦ at 7.0, the ?123 symbol key at 0.8.
+PITCH=1.3; PHONE_CENTER=5.0
 PHPOS={}
 for ri,r in enumerate(ROWS):
-    off=0 if len(r)==11 else 0.5
-    for i,c in enumerate(r): PHPOS[c]=(off+i+0.5,ri*1.4)
-PHPOS['SP']=(5.5,4*1.4)
+    for i,c in enumerate(r[:10]): PHPOS[c]=(i+0.5,ri*PITCH)
+PHPOS['SP']=(5.0,4*PITCH); PHPOS['-']=(7.0,4*PITCH)
 def fitts(d,w=1.0): return 0.10+0.15*math.log2(d/w+1)
 def dist(p,q): return math.hypot(p[0]-q[0],p[1]-q[1])
-def thumb(pos,last_thumb): 
-    if pos[0]<5.2: return 'L'
-    if pos[0]>5.8: return 'R'
+def thumb(pos,last_thumb,center=PHONE_CENTER):
+    """Left of the screen centre: left thumb; right of it: right thumb; within 0.3 key widths of the
+    centre (the space bar): whichever thumb did not make the previous tap."""
+    if pos[0]<center-0.3: return 'L'
+    if pos[0]>center+0.3: return 'R'
     return 'R' if last_thumb=='L' else 'L'
-REACH=lambda pos: 0.03*max(0,3*1.4-pos[1])/1.4
+REACH=lambda pos: 0.03*max(0,3*PITCH-pos[1])/PITCH   # rows above the bottom letter row
 EFF['TAB']=3.0;FINGER['TAB']=0;ROW['TAB']=1
-PREFIX_PHONE=[(0.5,4*1.4),(1.0,0.0)]  # phone: symbol key (bottom left), then the page tab (top left)
+PREFIX_PHONE=[(0.8,4*PITCH),(1.0,0.0)]  # phone: symbol key (bottom left), then the page tab (top left)
 PREFIX_TAB=True  # True: TPS symbols on a separate page (` Tab key); False: merged into the first page (` key)
 LONG=0.35; SHIFT_DESK=(2.0)  # extra cost of shift (extra keystroke + pinky)
 # ---------- layout evaluation ----------
-def evaluate(layout,phonepos=None,allo=False,precomp=False,detail=False,tps_ent=False):
+def evaluate(layout,phonepos=None,allo=False,precomp=False,detail=False,tps_ent=False,center=PHONE_CENTER):
     """layout: dict unit -> (cell, layer); layer 0 main, 1 secondary (Shift / long press),
     2 prefix page (desktop: ` then Tab then the key; phone: symbol key, page tab, then the key)."""
     pp=phonepos or PHPOS
@@ -94,7 +99,7 @@ def evaluate(layout,phonepos=None,allo=False,precomp=False,detail=False,tps_ent=
         last=None;tpos={'L':None,'R':None};lt=None
         def tap(pos,extra=0.0):
             nonlocal P,lt
-            th=thumb(pos,lt)
+            th=thumb(pos,lt,center)
             if tpos[th] is None: mt=0.25
             else:
                 own=fitts(dist(tpos[th],pos))

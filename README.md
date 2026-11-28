@@ -21,26 +21,27 @@ Run the scripts in this order from the repository folder:
 | --- | --- | --- |
 | 1 | `python get_data.py` | ChhoeTaigi Database at commit `b33c6a1` in `data/` |
 | 2 | `python extract.py` | `out/syl.json`, `out/streams.json` (147,072 syllables) |
-| 3 | `python optimize_all.py` | `out/runs/` (18 annealing runs, about 1 minute on 2 cores) |
+| 3 | `python optimize_all.py` | `out/runs/` (72 annealing runs: 24 seeds × 3 configurations, 1,000,000 iterations each; about 8 minutes on 2 cores) |
 | 4 | `python evaluate.py` | `out/layouts_proposed.json`, `out/scores.csv` |
 | 5 | `python figures_proposed.py` and `python figures_existing.py` | `out/figures/*.png` |
-| 6 (optional) | `python prefix_variants.py` | `out/prefix_variants.json`, `out/prefix_scores.csv` (prefix-key variants A-P, B-P, C-P, scored with a merged and a separate prefix page; `python prefix_variants.py score` re-scores only) |
+| 6 | `python sensitivity.py` and `python tps_entering_variant.py` | `out/sensitivity.csv` (Section 3.8); proposed layouts rescored with the Taigi-TPS entering key (Section 5.1) |
+| 7 (optional) | `python prefix_variants.py` | `out/prefix_variants.json`, `out/prefix_scores.csv` (prefix-key variants A-P, B-P, C-P, scored with a merged and a separate prefix page; `python prefix_variants.py score` re-scores only) |
 
-The annealing uses fixed seeds, so steps 3 and 4 reproduce the layouts and scores in the paper exactly. Set the environment variable `ITERS=20000` for a quick test run of step 3.
+The annealing optimizes a bigram approximation of the cost model; step 4 rescores every run with the full model and keeps the best one. The annealing uses fixed seeds, so steps 3 and 4 reproduce the layouts and scores in the paper exactly. Set the environment variable `ITERS=20000` for a quick test run of step 3.
 
 Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). Taigi-TPS is scored with its own entering key: the rime carrying the matching coda followed by the entering key (ㄤ + entering key for -ak, ㆰ for -ap, ㄢ for -at, the bare rime for -h), with tones 4 and 8 on the same key. The Mandarin-extended keyboard puts Taiwanese tones on F1–F9 and has no phone version, so only its desktop cost is reported (desktop index 122.2).
 
 | Layout | Desktop cost | Phone (s/syllable) | Keys/syllable | Shift or long press | Composite |
 | --- | --- | --- | --- | --- | --- |
-| Taigi-TPS | 8.06 | 1.208 | 3.22 | 0.0% | 100.0 |
-| Wu Shou-Li (Taiwanese-dedicated) | 7.69 | 1.274 | 3.50 | 19.1% | 100.4 |
-| Taigi Keyboard (Windows) | 8.22 | 1.295 | 3.52 | 20.5% | 104.6 |
+| Taigi-TPS | 8.06 | 1.202 | 3.22 | 0.0% | 100.0 |
+| Wu Shou-Li (Taiwanese-dedicated) | 7.69 | 1.247 | 3.50 | 19.1% | 99.6 |
+| Taigi Keyboard (Windows) | 8.22 | 1.290 | 3.52 | 20.5% | 104.6 |
 | Wu Shou-Li (Mandarin-extended, desktop only) | 9.85 | — | 3.50 | 19.1% | — |
-| Taigi Keyboard (Android) | — | 1.402 | 3.74 | 36.7% | — |
-| Layout A (Dachien-preserving) | 7.19 | 1.199 | 3.37 | 0.0% | 94.3 |
-| Layout B (hand-split) | 4.26 | 1.041 | 3.37 | 0.0% | 69.5 |
-| Layout C (structured hand-split) | 4.76 | 1.073 | 3.37 | 0.0% | 74.0 |
-| Unconstrained reference | 4.25 | 1.036 | 3.37 | 0.0% | 69.2 |
+| Taigi Keyboard (Android) | — | 1.396 | 3.74 | 36.7% | — |
+| Layout A (Dachien-preserving) | 7.19 | 1.189 | 3.37 | 0.0% | 94.1 |
+| Layout B (hand-split) | 4.26 | 1.022 | 3.37 | 0.0% | 68.9 |
+| Layout C (structured hand-split) | 4.76 | 1.060 | 3.37 | 0.0% | 73.6 |
+| Unconstrained reference | 4.27 | 1.006 | 3.37 | 0.0% | 68.3 |
 
 ## Files
 
@@ -50,13 +51,15 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `get_data.py` | Downloads the ChhoeTaigi Database |
 | `extract.py` | Extracts and parses Tâi-lô syllables from the dictionary example sentences |
 | `units.py` | Tâi-lô to TPS keystroke-unit conversion |
-| `model.py` | Key grid, desktop cost and mobile (Fitts' law) cost model |
+| `model.py` | Key grid, desktop cost and mobile (Fitts' law) cost model; the phone grid follows the Dachien-style Zhuyin keyboard of Gboard (four aligned rows of ten keys, ㄦ/- right of the space bar) |
 | `layouts.py` | Existing layouts: Taigi-TPS, Wu Shou-Li (Taiwanese-dedicated and Mandarin-extended), Taigi Keyboard (Windows, Android) |
 | `opt.py` | Simulated-annealing search for one configuration and seed |
 | `optimize_all.py` | Runs all configurations and seeds |
 | `evaluate.py` | Builds Layout C and scores all layouts |
-| `prefix_variants.py` | Variants that move rare symbols to a ` prefix page and re-optimize the freed keys |
-| `prefix_panel.py` | Key assignment of the prefix panel (merged first page: digit keys keep their digits, variants move down the column, a variant from 6 starts at T) |
+| `prefix_variants.py` | Variants that move rare symbols to a ` prefix page and re-optimize the freed keys (Layout A-P: fixed, see the docstring) |
+| `sensitivity.py` | Sensitivity analysis of the model constants |
+| `tps_entering_variant.py` | Proposed layouts rescored with the Taigi-TPS entering key |
+| `prefix_panel.py` | Key assignment of the prefix panel (merged first page: digit keys keep their digits, variants move down the column; keys of symbols a layout keeps on the main layer are left blank) |
 | `symbol_page.py` | First symbol page of each layout: TPS variants, digits and common full-width punctuation on the 41-key grid, plus an extra row |
 | `figures_prefix.py`, `figures_prefix_panel.py`, `figures_symbol_page.py` | Figures of the prefix variants and of the prefix panel (`python figures_prefix_panel.py en merged`) |
 | `figures_*.py` | Keyboard figures |
