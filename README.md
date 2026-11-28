@@ -40,7 +40,7 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | Taigi Keyboard (Android) | — | 1.396 | 3.74 | 36.7% | — |
 | Layout A (Dachien-preserving) | 7.44 | 1.198 | 3.37 | 0.0% | 96.0 |
 | Layout B (hand-split) | 4.26 | 1.022 | 3.37 | 0.0% | 68.9 |
-| Layout C (structured hand-split) | 4.76 | 1.060 | 3.37 | 0.0% | 73.6 |
+| Layout C (structured hand-split) | 4.97 | 1.066 | 3.37 | 0.0% | 75.2 |
 | Unconstrained reference | 4.27 | 1.006 | 3.37 | 0.0% | 68.3 |
 
 ## Files
@@ -55,11 +55,12 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `layouts.py` | Existing layouts: Taigi-TPS, Wu Shou-Li (Taiwanese-dedicated and Mandarin-extended), Taigi Keyboard (Windows, Android) |
 | `opt.py` | Simulated-annealing search for one configuration and seed |
 | `optimize_all.py` | Runs all configurations and seeds |
-| `evaluate.py` | Builds Layout C and scores all layouts |
+| `evaluate.py` | Builds Layout C (left half: place × manner grid; right half: vowel and nasal-coda rules) and scores all layouts |
 | `prefix_variants.py` | Prefix-key variants: P keeps the main layer of Layouts A, B and C and moves only ㆱ to the ` prefix page; P+ also moves ㄫ, ㆡ, ㆭ, ㆰ and re-optimizes the freed keys |
 | `sensitivity.py` | Sensitivity analysis of the model constants |
 | `tps_entering_variant.py` | Proposed layouts rescored with the Taigi-TPS entering key |
 | `input_rules.py` | Keys freed and syllables affected by each rule of the input logic |
+| `right_structure.py` | Exploratory: cost of the right-half rules of Layout C added one by one (`python right_structure.py`, then `python right_structure.py V3`; `out/right_structure.json`) |
 | `prefix_panel.py` | Key assignment of the prefix panel (merged first page: digit keys keep their digits, variants move down the column; keys of symbols a layout keeps on the main layer are left blank) |
 | `symbol_page.py` | First symbol page of each layout: TPS variants, digits and common full-width punctuation on the 41-key grid, plus an extra row |
 | `figures_prefix.py`, `figures_prefix_panel.py`, `figures_symbol_page.py` | Figures of the prefix variants and of the prefix panel (`python figures_prefix_panel.py en merged`) |

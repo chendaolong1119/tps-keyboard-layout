@@ -1,4 +1,4 @@
-"""Pick the best annealing run per configuration, build the structured Layout C,
+"""Pick the best annealing run per configuration, build the structured Layout C (rules on both halves),
 and score all existing and proposed layouts on the full keystroke streams.
 Writes out/layouts_proposed.json and out/scores.csv."""
 import json, glob, itertools, csv
@@ -27,8 +27,49 @@ def best_run(mode):
         return e['desk'] / ref['desk'] + e['phone'] / ref['phone']
     return min(rs, key=lambda r: (round(comp(r), 9), r['seed']))['layout']
 
+VOWELS = ['ㄚ', 'ㄧ', 'ㄨ', 'ㆤ', 'ㄜ', 'ㆦ']
+CODAS = (('ㆰ', 'ㆬ'), ('ㄢ', 'ㄣ'), ('ㄤ', 'ㄥ'))   # (a-rime, coda letter) for -m, -n, -ng
+RIGHT_ITERS = 300000
+
+def _anneal_job(args):
+    fixed, allowed, iters = args
+    return opt.anneal(fixed, allowed, iters=iters, seed=0)[1]
+
+def right_rules(left, score, iters=RIGHT_ITERS):
+    """Right half of Layout C, under three rules:
+      1. the six single vowels ㄚㄧㄨㆤㄜㆦ lie on the home or bottom row;
+      2. ㄚ (home row) shares a column with the a-rimes ㆰ, ㄢ, ㄤ;
+      3. ㄧ (home row) shares another column with the coda letters ㆬ, ㄣ, ㄥ, each in the row of the
+         a-rime with the same coda, so that the rows read -m, -n and -ng.
+    Every pair of columns and every row order is tried; the rest of the right half is annealed, and the
+    run with the lowest full-model score is kept. Units absent from opt.U (moved away) are skipped."""
+    from multiprocessing import Pool
+    units = [u for u in opt.U if u not in left]
+    right = [c for c in opt.BC_CELLS if model.FINGER[c] >= 5]
+    lower = [c for c in model.ROWS[2] + model.ROWS[3] if c in right]
+    cols = [[row[i] for row in model.ROWS] for i in range(min(map(len, model.ROWS)))]
+    cols = [col for col in cols if all(c in right for c in col)]
+    jobs = []
+    for ca, cc in itertools.permutations(cols, 2):
+        for rows in itertools.permutations([0, 1, 3]):
+            fx = {'ㄚ': ca[2], 'ㄧ': cc[2]}
+            for (a, c), r in zip(CODAS, rows):
+                if a in units: fx[a] = ca[r]
+                if c in units: fx[c] = cc[r]
+            fixed = dict(left, **fx)
+            free = [c for c in right if c not in fixed.values()]
+            allowed = {u: [c for c in (lower if u in VOWELS else right) if c in free] for u in units if u not in fixed}
+            jobs.append((fixed, allowed, iters))
+    with Pool() as p: lays = p.map(_anneal_job, jobs)
+    return min(lays, key=lambda l: round(score(l), 9))
+
+def composite(lay):
+    ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
+    e = model.evaluate(full(dict(lay, **opt.BC_TONES)))
+    return 50 * (e['desk'] / ref['desk'] + e['phone'] / ref['phone'])
+
 def structured(base):
-    """Layout C: left half as a place-by-manner grid; exhaustive search, then re-anneal the right half."""
+    """Layout C: left half as a place-by-manner grid (exhaustive search), right half under the rules of right_rules."""
     U, idx, C, cost = opt.U, opt.idx, opt.C, opt.cost
     cellidx = {c: i for i, c in enumerate(C)}
     cols = [['1','q','a','z'], ['2','w','s','x'], ['3','e','d','c'], ['4','r','f','v'], ['5','t','g','b']]
@@ -54,9 +95,7 @@ def structured(base):
             if u: lay[u] = cols[ci][r]
     for u, c in zip(extra, p2): lay[u] = c
     fixed = {u: c for u, c in lay.items() if u in opt.INITIALS or u in extra}
-    right = [c for c in opt.CELLS if c not in fixed.values()]
-    runs = [opt.anneal(fixed, {u: right for u in U if u not in fixed}, iters=150000, seed=s) for s in range(4)]
-    return min(runs, key=lambda r: r[0])[1]
+    return right_rules(fixed, composite)
 
 def shift_share(lay, allo, precomp):
     data = json.load(open(OUT / 'syl.json', encoding='utf-8'))

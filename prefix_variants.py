@@ -12,7 +12,7 @@ from multiprocessing import Pool
 import numpy as np
 import model, opt
 from config import OUT
-from evaluate import best_run, full
+from evaluate import best_run, full, right_rules
 
 ITERS = int(os.environ.get('ITERS', 1000000))
 SEEDS = range(1, 25)
@@ -78,9 +78,14 @@ def structured(base, moved):
             if u: lay[u] = cols[ci][r]
     for u, c in zip(extra, p2): lay[u] = c
     fixed = {u: c for u, c in lay.items() if u in opt.INITIALS or u in extra}
-    right = [c for c in opt.BC_CELLS if c not in fixed.values()]
-    runs = [opt.anneal(fixed, {u: right for u in U if u not in fixed}, iters=150000, seed=s) for s in range(4)]
-    return dict(min(runs, key=lambda r: r[0])[1], **opt.BC_TONES)
+    import layouts
+    ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
+    def score(l):
+        model.PREFIX_TAB = False
+        e = model.evaluate(with_prefix(dict(l, **opt.BC_TONES), moved, True))
+        model.PREFIX_TAB = True
+        return e['desk'] / ref['desk'] + e['phone'] / ref['phone']
+    return dict(right_rules(fixed, score), **opt.BC_TONES)
 
 def with_prefix(lay, moved, merged=False):
     from prefix_panel import panel
