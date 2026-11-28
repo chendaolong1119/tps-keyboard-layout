@@ -56,7 +56,7 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `opt.py` | Simulated-annealing search for one configuration and seed |
 | `optimize_all.py` | Runs all configurations and seeds |
 | `evaluate.py` | Builds Layout C and scores all layouts |
-| `prefix_variants.py` | Variants that move rare symbols to a ` prefix page and re-optimize the freed keys (Layout A-P: fixed, see the docstring) |
+| `prefix_variants.py` | Prefix-key variants: P keeps the main layer of Layouts A, B and C and moves only ㆱ to the ` prefix page; P+ also moves ㄫ, ㆡ, ㆭ, ㆰ and re-optimizes the freed keys |
 | `sensitivity.py` | Sensitivity analysis of the model constants |
 | `tps_entering_variant.py` | Proposed layouts rescored with the Taigi-TPS entering key |
 | `input_rules.py` | Keys freed and syllables affected by each rule of the input logic |

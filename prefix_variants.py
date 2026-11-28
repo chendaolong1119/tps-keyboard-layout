@@ -1,10 +1,10 @@
-"""Prefix-key variants (A-P, B-P, C-P): rare symbols move from the main layer to a prefix page
-entered with ` then Tab (desktop) or the symbol key and a page tab (phone), on the key of a
-related symbol. The freed main-layer keys are re-optimized.
-  P  : ㄫ (0.03% of keystrokes) and the already-secondary ㆱ, ˇ, ˆ
-  P+ : additionally ㆡ, ㆭ, ㆰ (each 0.3-0.4%), to show the trend
-  Layout A-P has the main layer of Layout A unchanged (ㄫ on its key, ˇ on 3, ˆ on 5), so only
-  ㆱ (and the panel-only symbols) are on the prefix page.
+"""Prefix-key variants: rare units move from the main layer to a prefix page entered with
+` (first page; or ` then Tab for a separate page) on the desktop, or the symbol key on the phone,
+on the key of a related unit.
+  P  : the main layer of Layouts A, B and C unchanged (ㄫ on its key; ˇ ˆ on 3 and 5 in Layout A,
+       on 0 and - in Layouts B and C), so only ㆱ and the panel-only letters are on the prefix page.
+  P+ : additionally ㄫ, ㆡ, ㆭ and ㆰ (each 0.03-0.4%) move to the prefix page, to show the trend;
+       the freed keys are re-optimized, with ˇ ˆ (and ˫ ˪ in Layout A) kept on their keys.
 Usage: python prefix_variants.py        (optimize and score; out/prefix_variants.json, out/prefix_scores.csv)
        python prefix_variants.py score  (re-score the saved variants only)"""
 import json, itertools, csv, os
@@ -43,9 +43,11 @@ def run(args):
     if mode == 'A':   # as Layout A: ˇ on 3, ˆ on 5, and the tones ˫ ˪ on R and T
         fixed, allowed = opt.DAQIAN, opt.a_allowed(opt.U)
         allowed.update({t: opt.A_UPPER for t in ('˫', '˪')})
-    else: fixed, allowed = {}, {u: opt.LEFT for u in ini}
+    else:             # as Layouts B and C: initials on the left half, ˇ ˆ on 0 and -
+        fixed = {}
+        allowed = {u: (opt.LEFT if u in ini else opt.BC_CELLS) for u in opt.U}
     c, lay = opt.anneal(fixed, allowed, iters=ITERS, seed=seed)
-    if mode == 'A': lay = dict(lay, **opt.A_TONES)
+    lay = dict(lay, **(opt.A_TONES if mode == 'A' else opt.BC_TONES))
     return vname, mode, seed, (c, lay)
 
 def structured(base, moved):
@@ -76,9 +78,9 @@ def structured(base, moved):
             if u: lay[u] = cols[ci][r]
     for u, c in zip(extra, p2): lay[u] = c
     fixed = {u: c for u, c in lay.items() if u in opt.INITIALS or u in extra}
-    right = [c for c in opt.CELLS if c not in fixed.values()]
+    right = [c for c in opt.BC_CELLS if c not in fixed.values()]
     runs = [opt.anneal(fixed, {u: right for u in U if u not in fixed}, iters=150000, seed=s) for s in range(4)]
-    return min(runs, key=lambda r: r[0])[1]
+    return dict(min(runs, key=lambda r: r[0])[1], **opt.BC_TONES)
 
 def with_prefix(lay, moved, merged=False):
     from prefix_panel import panel
@@ -88,8 +90,9 @@ def with_prefix(lay, moved, merged=False):
     for e, b in {'ㆴ': 'ㄅ', 'ㆵ': 'ㄉ', 'ㆻ': 'ㄍ', 'ㆷ': 'ㄏ'}.items(): d[e] = (lay[b], 0)
     return d
 
-def a_p():
-    return json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))['A']
+def base_layout(name):
+    """Variant P keeps the main layer of the base layout."""
+    return json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))[name]
 
 def full_main(lay):
     return {u: (c, 0) for u, c in lay.items()}
@@ -121,9 +124,9 @@ if __name__ == '__main__':
     import sys
     if sys.argv[1:] == ['score']:
         score(); raise SystemExit
-    # A-P is not optimized (see a_p); the runs are rescored with the full model (TPS symbols on the
-    # first page of the panel) and the best run is kept, as in evaluate.best_run.
-    jobs = [(v, m, s) for v in VARIANTS for m in ('A', 'B') for s in SEEDS if (v, m) != ('P', 'A')]
+    # Variant P is not optimized (see base_layout); the P+ runs are rescored with the full model (TPS
+    # letters on the first page of the panel) and the best run is kept, as in evaluate.best_run.
+    jobs = [('P+', m, s) for m in ('A', 'B') for s in SEEDS]
     import layouts
     ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
     model.PREFIX_TAB = False
@@ -136,9 +139,9 @@ if __name__ == '__main__':
             if (v, m) not in best or key < best[(v, m)][0]: best[(v, m)] = (key, lay)
     model.PREFIX_TAB = True
     res = {}
-    for v, moved in VARIANTS.items():
-        res[f'A-{v}'] = a_p() if v == 'P' else best[(v, 'A')][1]
-        res[f'B-{v}'] = best[(v, 'B')][1]
-        res[f'C-{v}'] = structured(best[(v, 'B')][1], moved)
+    for n in ('A', 'B', 'C'): res[f'{n}-P'] = base_layout(n)
+    res['A-P+'] = best[('P+', 'A')][1]
+    res['B-P+'] = best[('P+', 'B')][1]
+    res['C-P+'] = structured(best[('P+', 'B')][1], VARIANTS['P+'])
     json.dump(res, open(OUT / 'prefix_variants.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     score(res)

@@ -9,11 +9,11 @@ from units import syl_units
 
 ENT = {'ㆴ': 'ㄅ', 'ㆵ': 'ㄉ', 'ㆻ': 'ㄍ', 'ㆷ': 'ㄏ'}
 def full(lay):
-    """Proposed input logic: entering finals on ㄅㄉㄍㄏ, rare units on the secondary layer."""
+    """Proposed input logic: entering finals on ㄅㄉㄍㄏ; ㆱ, and ˇ ˆ where the layout has no key for them, on the secondary layer."""
     d = {u: (c, 0) for u, c in lay.items()}
     for e, b in ENT.items(): d[e] = d[b]
     d['ㆱ'] = (lay['ㆰ'], 1)
-    for t, b in (('ˇ', 'ˋ'), ('ˆ', 'ˊ')):   # main-layer key in Layout A, else the secondary layer
+    for t, b in (('ˇ', 'ˋ'), ('ˆ', 'ˊ')):   # main-layer key in Layouts A, B and C, else the secondary layer
         d[t] = (lay[t], 0) if t in lay else (lay[b], 1)
     return d
 
@@ -70,6 +70,9 @@ if __name__ == '__main__':
     prop = {'A': opt.a_learn(dict(best_run('A'), **opt.A_TONES)), 'B': best_run('B'), 'free': best_run('free')}
     assert {prop['A']['˫'], prop['A']['˪']} == set(opt.A_UPPER), 'Layout A: tones not on R and T'
     prop['C'] = structured(prop['B'])
+    for m in ('B', 'C'):   # the two keys B and C leave free take the rare tones ˇ and ˆ
+        assert not set(opt.BC_TONES.values()) & set(prop[m].values()), f'Layout {m}: 0 or - is taken'
+        prop[m] = dict(prop[m], **opt.BC_TONES)
     json.dump(prop, open(OUT / 'layouts_proposed.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
     and_lay, and_pos = layouts.android(False)

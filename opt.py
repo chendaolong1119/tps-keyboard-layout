@@ -93,6 +93,10 @@ def a_learn(lay):
         if t in lay and i in lay: lay[t],lay[i]=lay[i],lay[t]
     return lay
 A_UPPER=['r','t']   # the keys the adjustment gives to ˫ and ˪
+# Layouts B and C leave two main-layer keys free, 0 and -; the rare tones ˇ (tone 6) and ˆ (tone 9) take them,
+# so that no unit except ㆱ needs Shift. Too rare to anneal; their keys are closed to the other units.
+BC_TONES={'ˇ':'0','ˆ':'-'}
+BC_CELLS=[c for c in CELLS if c not in BC_TONES.values()]
 if __name__=='__main__':
     mode=sys.argv[1];seed=int(sys.argv[2])
     # A = Dachien-preserving, B = hand-split (initials on the left half), free = unconstrained

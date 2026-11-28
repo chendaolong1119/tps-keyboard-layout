@@ -23,9 +23,9 @@ T = {'en': dict(nas='nas', space='Space = tones 1 and 4',
                         'C-P': 'Layout C-P: structured hand-split with prefix page'}),
      'zh': dict(nas='鼻', space='空白鍵＝第 1、4 聲', leg=['聲母', '韻母', '聲調', '鼻化'],
                 note='\n紅字＝入聲韻尾（接在韻母後）；綠字＝後接字母 ㄧ（i）時的同位音；橘字＝母音＋鼻化鍵',
-                titles={'A-P': '方案甲-P：大千保留型＋前置頁',
-                        'B-P': '方案乙-P：左右分區型＋前置頁',
-                        'C-P': '方案丙-P：結構化分區型＋前置頁'})}[LANG]
+                titles={'A-P': '方案甲-P：保留大千式＋前置頁',
+                        'B-P': '方案乙-P：左右分工＋前置頁',
+                        'C-P': '方案丙-P：結構化左右分工＋前置頁'})}[LANG]
 
 def cat(u):
     if u is None: return 'none'
