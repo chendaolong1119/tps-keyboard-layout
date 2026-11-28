@@ -24,11 +24,20 @@ def related_key(lay, v):
     return lay.get(r) or lay.get(REL.get(r, ''))
 
 def panel(lay, moved, merged):
-    """Return {variant: key} for the moved units, ㆱ ˇ ˆ, and the panel-only extras."""
+    """Return {variant: key} for the moved units, ㆱ ˇ ˆ, and the panel-only extras.
+    A symbol that the layout keeps on the main layer (Layout A-P: ㄫ, ˇ, ˆ) is left off the
+    panel, and the key it would have taken is left blank, so the rest of the page is unchanged."""
     vs = list(moved) + [u for u in ('ㆱ', 'ˇ', 'ˆ') if u not in moved] + EXTRA
+    kept = [v for v in vs if v in lay]
+    if kept:
+        std = _panel({u: c for u, c in lay.items() if u not in kept}, vs, merged, set())
+        return _panel(lay, [v for v in vs if v not in kept], merged, {std[v] for v in kept})
+    return _panel(lay, vs, merged, set())
+
+def _panel(lay, vs, merged, blank):
     if not merged:
         return {v: related_key(lay, v) for v in vs}
-    out, taken = {}, set(RESERVED)
+    out, taken = {}, set(RESERVED) | blank
     first = [v for v in vs if related_key(lay, v) not in DIGITS]
     later = [v for v in vs if related_key(lay, v) in DIGITS]
     for v in first + later:

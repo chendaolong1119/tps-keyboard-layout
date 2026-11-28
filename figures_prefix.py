@@ -10,7 +10,7 @@ from model import ROWS
 from config import OUT
 INITIALS = list('ㄅㄆㄇㆠㄉㄊㄋㄌㄍㄎㄫㆣㄏㄗㄘㄙㆡ')
 AUTO = {'ㄅ': 'ㆴ', 'ㄉ': 'ㆵ', 'ㄍ': 'ㆻ', 'ㄏ': 'ㆷ'}
-TONES = 'ˋ˪ˊ˫˙'
+TONES = 'ˋ˪ˊ˫˙ˇˆ'
 COL = {'ini': '#dbe9f6', 'rime': '#fbe3cf', 'tone': '#e2f0d9', 'nas': '#eadcf2', 'none': '#f2f2f2'}
 LANG = sys.argv[1] if len(sys.argv) > 1 else 'en'
 T = {'en': dict(nas='nas', space='Space = tones 1 and 4',

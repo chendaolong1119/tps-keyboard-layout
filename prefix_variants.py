@@ -3,6 +3,8 @@ entered with ` then Tab (desktop) or the symbol key and a page tab (phone), on t
 related symbol. The freed main-layer keys are re-optimized.
   P  : ㄫ (0.03% of keystrokes) and the already-secondary ㆱ, ˇ, ˆ
   P+ : additionally ㆡ, ㆭ, ㆰ (each 0.3-0.4%), to show the trend
+  Layout A-P is not re-optimized: it is Layout A with ㄫ kept on B and ˇ, ˆ moved from Shift+4/6
+  to the free 5 and - keys, so only ㆱ (and the panel-only symbols) are on the prefix page.
 Usage: python prefix_variants.py        (optimize and score; out/prefix_variants.json, out/prefix_scores.csv)
        python prefix_variants.py score  (re-score the saved variants only)"""
 import json, itertools, csv, os
@@ -81,6 +83,10 @@ def with_prefix(lay, moved, merged=False):
     for e, b in {'ㆴ': 'ㄅ', 'ㆵ': 'ㄉ', 'ㆻ': 'ㄍ', 'ㆷ': 'ㄏ'}.items(): d[e] = (lay[b], 0)
     return d
 
+def a_p():
+    base = json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))['A']
+    return dict(base, **{'ˇ': '5', 'ˆ': '-'})
+
 def full_main(lay):
     return {u: (c, 0) for u, c in lay.items()}
 
@@ -118,7 +124,7 @@ if __name__ == '__main__':
             if (v, m) not in best or c < best[(v, m)][0]: best[(v, m)] = (c, lay)
     res = {}
     for v, moved in VARIANTS.items():
-        res[f'A-{v}'] = best[(v, 'A')][1]
+        res[f'A-{v}'] = best[(v, 'A')][1] if v != 'P' else a_p()
         res[f'B-{v}'] = best[(v, 'B')][1]
         res[f'C-{v}'] = structured(best[(v, 'B')][1], moved)
     json.dump(res, open(OUT / 'prefix_variants.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

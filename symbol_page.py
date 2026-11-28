@@ -39,14 +39,24 @@ def _candidates(pref, n, free):
                 seqs.append((abs(ri - r0) * 1.5 + abs(i - i0), k))
     return out + [k for _, k in sorted(seqs)]
 
+def blank_keys(lay):
+    """Keys vacated by symbols the layout keeps on the main layer (left blank on the page)."""
+    from prefix_panel import _panel, EXTRA
+    vs = ['ㄫ', 'ㆱ', 'ˇ', 'ˆ'] + EXTRA
+    kept = [v for v in vs if v in lay]
+    if not kept: return set()
+    std = _panel({u: c for u, c in lay.items() if u not in kept}, vs, True, set())
+    return {std[v] for v in kept}
+
 def page(lay):
     tps = {k: v for v, k in panel(lay, ['ㄫ'], True).items()}
-    free = {c for r in ROWS for c in r} - DIGITS - set(tps)
+    blank = blank_keys(lay)
+    free = {c for r in ROWS for c in r} - DIGITS - set(tps) - blank
     punct = {}
     for syms, pref in ITEMS:
         k = _candidates(pref, len(syms), free)[0]
         for s, c in zip(syms, k): punct[c] = s; free.discard(c)
-    return tps, punct, sorted(free, key=lambda c: POS[c])
+    return tps, punct, sorted(free | blank, key=lambda c: POS[c])
 
 if __name__ == '__main__':
     var = json.load(open(OUT / 'prefix_variants.json', encoding='utf-8'))

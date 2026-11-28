@@ -2,13 +2,13 @@ layout,prefix_page,desk_index,phone_index,keys_per_syl,composite
 A,-,89.3,99.3,3.374,94.3
 B,-,52.9,86.2,3.374,69.5
 C,-,59.1,88.8,3.374,74.0
-A-P,separate,89.4,99.4,3.375,94.4
+A-P,separate,89.3,99.3,3.374,94.3
 B-P,separate,52.9,85.5,3.375,69.2
 C-P,separate,59.0,89.3,3.375,74.1
 A-P+,separate,94.5,102.7,3.452,98.6
 B-P+,separate,57.3,90.4,3.452,73.8
 C-P+,separate,60.2,90.3,3.452,75.3
-A-P,merged,89.3,99.3,3.375,94.3
+A-P,merged,89.3,99.3,3.374,94.3
 B-P,merged,52.9,85.5,3.375,69.2
 C-P,merged,58.9,89.2,3.375,74.1
 A-P+,merged,91.3,100.9,3.413,96.1
