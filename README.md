@@ -25,7 +25,7 @@ Run the scripts in this order from the repository folder:
 | 4 | `python evaluate.py` | `out/layouts_proposed.json`, `out/scores.csv` |
 | 5 | `python figures_proposed.py` and `python figures_existing.py` | `out/figures/*.png` |
 | 6 | `python sensitivity.py`, `python tps_entering_variant.py` and `python input_rules.py` | `out/sensitivity.csv` (Section 3.8); proposed layouts rescored with the Taigi-TPS entering key, and the keys freed and syllables affected by each input rule (Section 5.1) |
-| 7 (optional) | `python prefix_variants.py` | `out/prefix_variants.json`, `out/prefix_scores.csv` (prefix-key variants A-P, B-P, C-P, scored with a merged and a separate prefix page; `python prefix_variants.py score` re-scores only) |
+| 7 (optional) | `python prefix_variants.py` | `out/prefix_variants.json`, `out/prefix_scores.csv` (prefix-key variants A-P, B-P, C-P, scored with a merged and a separate prefix page) |
 
 The annealing optimizes a bigram approximation of the cost model; step 4 rescores every run with the full model and keeps the best one. The annealing uses fixed seeds, so steps 3 and 4 reproduce the layouts and scores in the paper exactly. Set the environment variable `ITERS=20000` for a quick test run of step 3.
 
@@ -56,7 +56,7 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `opt.py` | Simulated-annealing search for one configuration and seed |
 | `optimize_all.py` | Runs all configurations and seeds |
 | `evaluate.py` | Builds Layout C (left half: place × manner grid; right half: vowel and nasal-coda rules) and scores all layouts |
-| `prefix_variants.py` | Prefix-key variants: P keeps the main layer of Layouts A, B and C and moves only ㆱ to the ` prefix page; P+ also moves ㄫ, ㆡ, ㆭ, ㆰ and re-optimizes the freed keys |
+| `prefix_variants.py` | Prefix-key variants A-P, B-P, C-P: the main layer of Layouts A, B and C unchanged, ㆱ and the panel-only letters on the ` prefix page |
 | `sensitivity.py` | Sensitivity analysis of the model constants |
 | `tps_entering_variant.py` | Proposed layouts rescored with the Taigi-TPS entering key |
 | `input_rules.py` | Keys freed and syllables affected by each rule of the input logic |

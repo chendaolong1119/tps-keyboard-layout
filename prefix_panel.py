@@ -5,7 +5,6 @@ Every variant sits on the key of a related main-layer symbol. Two designs:
   merged   : TPS symbols share the first page with full-width digits and punctuation (` key).
              The digit keys keep their full-width digits and the hyphen key keeps ——, so a variant whose related symbol is
              on a digit key moves straight down the same column to the first free letter key;
-             (Bottom-row collisions, which occur only in the P+ variants, take the nearest free key.)
              (U and B are not reserved: a TPS input method does not have to share the Microsoft
              Bopomofo IME's `U and `B code entry.)
 """
