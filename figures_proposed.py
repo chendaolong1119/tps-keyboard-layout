@@ -8,14 +8,16 @@ from config import OUT
 INITIALS=list('ㄅㄆㄇㆠㄉㄊㄋㄌㄍㄎㄫㆣㄏㄗㄘㄙㆡ')
 best=json.load(open(OUT/'layouts_proposed.json',encoding='utf-8'))
 AUTO={'ㄅ':'ㆴ','ㄉ':'ㆵ','ㄍ':'ㆻ','ㄏ':'ㆷ'}        # entering finals, converted by position (red)
+ALLO={'ㄗ':'ㄐ','ㄘ':'ㄑ','ㄙ':'ㄒ','ㆡ':'ㆢ'}        # allophones shown before ㄧ (green)
+NASV={'ㄚ':'ㆩ','ㄧ':'ㆪ','ㄨ':'ㆫ','ㆤ':'ㆥ','ㆦ':'ㆧ','ㄞ':'ㆮ','ㄠ':'ㆯ'}   # vowel + nasal key (orange)
 SHIFT={'ㆰ':'ㆱ','ˋ':'ˇ','ˊ':'ˆ'}                    # secondary layer, typed with Shift (blue)
 LANG=sys.argv[1] if len(sys.argv)>1 else 'en'
 T={'en':dict(nas='nas',space='Space = tones 1 and 4',leg=['Initial','Rime','Tone','Nasalization'],
-             note=' (red = entering final, converted by position; blue = Shift)',
+             note='\nred = entering final (after a rime); green = before ㄧ (i); orange = with the nasal key; blue = Shift',
              titles={'A':'Layout A: Dachien-preserving','B':'Layout B: hand-split (all initials on the left half)',
                      'C':'Layout C: structured hand-split (columns = place, rows = manner)','free':'Unconstrained reference'}),
    'zh':dict(nas='鼻',space='空白鍵＝第 1、4 聲',leg=['聲母','韻母','聲調','鼻化'],
-             note='（紅字＝入聲韻尾，依位置自動轉換；藍字＝Shift）',
+             note='\n紅字＝入聲韻尾（接在韻母後）；綠字＝後接 ㄧ（i）時的同位音；橘字＝母音＋鼻化鍵；藍字＝Shift',
              titles={'A':'方案甲：保留大千式','B':'方案乙：左右分工（聲母全在左半）',
                      'C':'方案丙：結構化左右分工（行＝發音部位，列＝發音方法）','free':'無限制參考排列'})}[LANG]
 TONES='ˋ˪ˊ˫˙ˇˆ'
@@ -37,7 +39,8 @@ def draw(m,fn,title):
             ax.add_patch(FancyBboxPatch((x+0.05,y+0.05),0.9,0.9,boxstyle='round,pad=0.0,rounding_size=0.12',fc=COL[cat(u)],ec='#888',lw=0.8))
             ax.text(x+0.13,y+0.82,c.upper(),fontsize=8,color='#777',va='top')
             if u: ax.text(x+0.5,y+0.42,T['nas'] if u=='N' else u,fontsize=20 if u!='N' else 15,ha='center',va='center')
-            if u in AUTO: ax.text(x+0.85,y+0.82,AUTO[u],fontsize=10,color='#c0392b',ha='right',va='top')
+            for mp,col in ((AUTO,'#c0392b'),(ALLO,'#1e8449'),(NASV,'#d35400')):
+                if u in mp: ax.text(x+0.85,y+0.82,mp[u],fontsize=10,color=col,ha='right',va='top')
             if u in SHIFT and SHIFT[u] not in best[m]: ax.text(x+0.85,y+0.82,SHIFT[u],fontsize=10,color='#1f5fbf',ha='right',va='top')
     ax.add_patch(FancyBboxPatch((3.3,-0.2),4.5,0.75,boxstyle='round,pad=0.0,rounding_size=0.12',fc=COL['tone'],ec='#888',lw=0.8))
     ax.text(5.55,0.17,T['space'],fontsize=11,ha='center',va='center')
