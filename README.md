@@ -24,7 +24,7 @@ Run the scripts in this order from the repository folder:
 | 3 | `python optimize_all.py` | `out/runs/` (72 annealing runs: 24 seeds × 3 configurations, 1,000,000 iterations each; about 8 minutes on 2 cores) |
 | 4 | `python evaluate.py` | `out/layouts_proposed.json`, `out/scores.csv` |
 | 5 | `python figures_proposed.py` and `python figures_existing.py` | `out/figures/*.png` |
-| 6 | `python sensitivity.py` and `python tps_entering_variant.py` | `out/sensitivity.csv` (Section 3.8); proposed layouts rescored with the Taigi-TPS entering key (Section 5.1) |
+| 6 | `python sensitivity.py`, `python tps_entering_variant.py` and `python input_rules.py` | `out/sensitivity.csv` (Section 3.8); proposed layouts rescored with the Taigi-TPS entering key, and the keys freed and syllables affected by each input rule (Section 5.1) |
 | 7 (optional) | `python prefix_variants.py` | `out/prefix_variants.json`, `out/prefix_scores.csv` (prefix-key variants A-P, B-P, C-P, scored with a merged and a separate prefix page; `python prefix_variants.py score` re-scores only) |
 
 The annealing optimizes a bigram approximation of the cost model; step 4 rescores every run with the full model and keeps the best one. The annealing uses fixed seeds, so steps 3 and 4 reproduce the layouts and scores in the paper exactly. Set the environment variable `ITERS=20000` for a quick test run of step 3.
@@ -59,6 +59,7 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `prefix_variants.py` | Variants that move rare symbols to a ` prefix page and re-optimize the freed keys (Layout A-P: fixed, see the docstring) |
 | `sensitivity.py` | Sensitivity analysis of the model constants |
 | `tps_entering_variant.py` | Proposed layouts rescored with the Taigi-TPS entering key |
+| `input_rules.py` | Keys freed and syllables affected by each rule of the input logic |
 | `prefix_panel.py` | Key assignment of the prefix panel (merged first page: digit keys keep their digits, variants move down the column; keys of symbols a layout keeps on the main layer are left blank) |
 | `symbol_page.py` | First symbol page of each layout: TPS variants, digits and common full-width punctuation on the 41-key grid, plus an extra row |
 | `figures_prefix.py`, `figures_prefix_panel.py`, `figures_symbol_page.py` | Figures of the prefix variants and of the prefix panel (`python figures_prefix_panel.py en merged`) |
