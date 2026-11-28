@@ -38,7 +38,7 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | Taigi Keyboard (Windows) | 8.22 | 1.290 | 3.52 | 20.5% | 104.6 |
 | Wu Shou-Li (Mandarin-extended, desktop only) | 9.85 | — | 3.50 | 19.1% | — |
 | Taigi Keyboard (Android) | — | 1.396 | 3.74 | 36.7% | — |
-| Layout A (Dachien-preserving) | 7.20 | 1.190 | 3.37 | 0.0% | 94.2 |
+| Layout A (Dachien-preserving) | 7.44 | 1.198 | 3.37 | 0.0% | 96.0 |
 | Layout B (hand-split) | 4.26 | 1.022 | 3.37 | 0.0% | 68.9 |
 | Layout C (structured hand-split) | 4.76 | 1.060 | 3.37 | 0.0% | 73.6 |
 | Unconstrained reference | 4.27 | 1.006 | 3.37 | 0.0% | 68.3 |
@@ -62,7 +62,7 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | `prefix_panel.py` | Key assignment of the prefix panel (merged first page: digit keys keep their digits, variants move down the column; keys of symbols a layout keeps on the main layer are left blank) |
 | `symbol_page.py` | First symbol page of each layout: TPS variants, digits and common full-width punctuation on the 41-key grid, plus an extra row |
 | `figures_prefix.py`, `figures_prefix_panel.py`, `figures_symbol_page.py` | Figures of the prefix variants and of the prefix panel (`python figures_prefix_panel.py en merged`) |
-| `figures_*.py` | Keyboard figures |
+| `figures_*.py` | Keyboard figures (`python figures_proposed.py zh` for Chinese labels) |
 | `out/` | Results: proposed layouts, scores and figures |
 
 The ChhoeTaigi data are not redistributed here; `get_data.py` downloads them from the original repository.

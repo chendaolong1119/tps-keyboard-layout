@@ -1,6 +1,6 @@
-"""Draw the prefix-key variants (A-P, B-P, C-P): main layer plus the symbols
-reached through the ` prefix page, shown in purple at the lower right of the key
-given by prefix_panel.py (merged symbol page). Usage: python figures_prefix.py [en|zh]"""
+"""Draw the main layer of the prefix-key variants (A-P, B-P, C-P). The symbols reached through
+the ` prefix page are not drawn here; they appear on the symbol page (figures_symbol_page.py).
+Usage: python figures_prefix.py [en|zh]"""
 import json, sys, matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -15,12 +15,12 @@ COL = {'ini': '#dbe9f6', 'rime': '#fbe3cf', 'tone': '#e2f0d9', 'nas': '#eadcf2',
 LANG = sys.argv[1] if len(sys.argv) > 1 else 'en'
 T = {'en': dict(nas='nas', space='Space = tones 1 and 4',
                 leg=['Initial', 'Rime', 'Tone', 'Nasalization'],
-                note=' (red = auto-converted; purple = via ` prefix page)',
+                note=' (red = entering final, converted by position)',
                 titles={'A-P': 'Layout A-P: Dachien-preserving with prefix page',
                         'B-P': 'Layout B-P: hand-split with prefix page',
                         'C-P': 'Layout C-P: structured hand-split with prefix page'}),
      'zh': dict(nas='鼻', space='空白鍵＝第 1、4 聲', leg=['聲母', '韻母', '聲調', '鼻化'],
-                note='（紅字＝自動轉換；紫字＝‵ 前置頁）',
+                note='（紅字＝入聲韻尾，依位置自動轉換）',
                 titles={'A-P': '方案甲-P：大千保留型＋前置頁',
                         'B-P': '方案乙-P：左右分區型＋前置頁',
                         'C-P': '方案丙-P：結構化分區型＋前置頁'})}[LANG]
@@ -34,10 +34,7 @@ def cat(u):
 
 def draw(lay, fn, title):
     inv = {c: u for u, c in lay.items()}
-    from prefix_panel import panel
-    pre = {}
-    for p, k in panel(lay, ['ㄫ'], True).items():   # merged symbol page (prefix_panel.py)
-        pre[k] = pre.get(k, '') + p
+    pre = {}   # prefix-page symbols are shown on the symbol page, not on the main layer
     fig, ax = plt.subplots(figsize=(11.5, 4.6)); ax.set_xlim(-0.1, 11.3); ax.set_ylim(-0.3, 5.3); ax.axis('off')
     offs = [0, 0.5, 0.75, 1.25]
     for ri, r in enumerate(ROWS):

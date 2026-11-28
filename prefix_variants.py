@@ -40,7 +40,9 @@ def run(args):
     vname, mode, seed = args
     moved = VARIANTS[vname]; reduce_units(moved)
     ini = [u for u in opt.INITIALS if u not in moved]
-    if mode == 'A': fixed, allowed = opt.DAQIAN, opt.a_allowed(opt.U)
+    if mode == 'A':   # as Layout A: ˇ on 3, ˆ on 5, and the tones ˫ ˪ on R and T
+        fixed, allowed = opt.DAQIAN, opt.a_allowed(opt.U)
+        allowed.update({t: opt.A_UPPER for t in ('˫', '˪')})
     else: fixed, allowed = {}, {u: opt.LEFT for u in ini}
     c, lay = opt.anneal(fixed, allowed, iters=ITERS, seed=seed)
     if mode == 'A': lay = dict(lay, **opt.A_TONES)

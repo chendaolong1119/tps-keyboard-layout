@@ -84,6 +84,15 @@ LEFT=[c for c in CELLS if model.FINGER[c]<5]
 A_TONES={'ˇ':'3','ˆ':'5'}
 A_CELLS=[c for c in CELLS if c not in A_TONES.values()]
 def a_allowed(units): return {u:A_CELLS for u in units if u not in DAQIAN}
+# Learnability adjustment of Layout A, chosen by the author after the annealing: the two frequent
+# Taiwanese tones ˫ and ˪ trade keys with the voiced initials ㆠ and ㆡ, so that every tone mark sits
+# in the two upper rows (3-7, R, T) and the initials below; it costs about 1.8 composite points.
+def a_learn(lay):
+    lay=dict(lay)
+    for t,i in (('˫','ㆠ'),('˪','ㆡ')):
+        if t in lay and i in lay: lay[t],lay[i]=lay[i],lay[t]
+    return lay
+A_UPPER=['r','t']   # the keys the adjustment gives to ˫ and ˪
 if __name__=='__main__':
     mode=sys.argv[1];seed=int(sys.argv[2])
     # A = Dachien-preserving, B = hand-split (initials on the left half), free = unconstrained

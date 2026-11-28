@@ -67,7 +67,8 @@ def shift_share(lay, allo, precomp):
     return 100 * sh / tot
 
 if __name__ == '__main__':
-    prop = {'A': dict(best_run('A'), **opt.A_TONES), 'B': best_run('B'), 'free': best_run('free')}
+    prop = {'A': opt.a_learn(dict(best_run('A'), **opt.A_TONES)), 'B': best_run('B'), 'free': best_run('free')}
+    assert {prop['A']['˫'], prop['A']['˪']} == set(opt.A_UPPER), 'Layout A: tones not on R and T'
     prop['C'] = structured(prop['B'])
     json.dump(prop, open(OUT / 'layouts_proposed.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
