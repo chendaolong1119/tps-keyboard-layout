@@ -12,7 +12,9 @@ def full(lay):
     """Proposed input logic: entering finals on ㄅㄉㄍㄏ, rare units on the secondary layer."""
     d = {u: (c, 0) for u, c in lay.items()}
     for e, b in ENT.items(): d[e] = d[b]
-    d['ㆱ'] = (lay['ㆰ'], 1); d['ˇ'] = (lay['ˋ'], 1); d['ˆ'] = (lay['ˊ'], 1)
+    d['ㆱ'] = (lay['ㆰ'], 1)
+    for t, b in (('ˇ', 'ˋ'), ('ˆ', 'ˊ')):   # main-layer key in Layout A, else the secondary layer
+        d[t] = (lay[t], 0) if t in lay else (lay[b], 1)
     return d
 
 def best_run(mode):
@@ -21,7 +23,7 @@ def best_run(mode):
     rs = [json.load(open(f, encoding='utf-8')) for f in sorted(glob.glob(str(OUT / 'runs' / f'{mode}_*.json')))]
     ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)
     def comp(r):
-        e = model.evaluate(full(r['layout']))
+        e = model.evaluate(full(dict(r['layout'], **(opt.A_TONES if mode == 'A' else {}))))
         return e['desk'] / ref['desk'] + e['phone'] / ref['phone']
     return min(rs, key=lambda r: (round(comp(r), 9), r['seed']))['layout']
 
@@ -65,7 +67,7 @@ def shift_share(lay, allo, precomp):
     return 100 * sh / tot
 
 if __name__ == '__main__':
-    prop = {'A': best_run('A'), 'B': best_run('B'), 'free': best_run('free')}
+    prop = {'A': dict(best_run('A'), **opt.A_TONES), 'B': best_run('B'), 'free': best_run('free')}
     prop['C'] = structured(prop['B'])
     json.dump(prop, open(OUT / 'layouts_proposed.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     ref = model.evaluate(layouts.TPS, allo=True, tps_ent=True)

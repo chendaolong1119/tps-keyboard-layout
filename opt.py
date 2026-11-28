@@ -79,10 +79,15 @@ def anneal(fixed,allowed,iters=60000,seed=0,T0=0.02):
     return best,{U[i]:C[bestasg[i]] for i in range(len(U))}
 DAQIAN={'ㄅ':'1','ㄉ':'2','ˋ':'4','ˊ':'6','˙':'7','ㄚ':'8','ㄞ':'9','ㄢ':'0','ㄆ':'q','ㄊ':'w','ㄍ':'e','ㄗ':'y','ㄧ':'u','ㄣ':'p','ㄇ':'a','ㄋ':'s','ㄎ':'d','ㄘ':'h','ㄨ':'j','ㄜ':'k','ㄠ':'l','ㄤ':';','ㄌ':'x','ㄏ':'c','ㄙ':'n','ㄥ':'/'}
 LEFT=[c for c in CELLS if model.FINGER[c]<5]
+# Layout A also keeps the Dachien tone keys of the rare tones: ˇ (tone 6) on 3, as Mandarin ˇ,
+# and ˆ (tone 9) on 5 beside it. They are not annealed (too rare); their keys are closed to the others.
+A_TONES={'ˇ':'3','ˆ':'5'}
+A_CELLS=[c for c in CELLS if c not in A_TONES.values()]
+def a_allowed(units): return {u:A_CELLS for u in units if u not in DAQIAN}
 if __name__=='__main__':
     mode=sys.argv[1];seed=int(sys.argv[2])
     # A = Dachien-preserving, B = hand-split (initials on the left half), free = unconstrained
-    if mode=='A': fixed=DAQIAN;allowed={}
+    if mode=='A': fixed=DAQIAN;allowed=a_allowed(U)
     elif mode=='B': fixed={};allowed={u:LEFT for u in INITIALS}
     else: fixed={};allowed={}
     b,lay=anneal(fixed,allowed,iters=int(sys.argv[3]),seed=seed)

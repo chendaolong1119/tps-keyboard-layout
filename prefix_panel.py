@@ -3,7 +3,7 @@
 Every variant sits on the key of a related main-layer symbol. Two designs:
   separate : TPS symbols on their own page (` Tab key); any key may be used.
   merged   : TPS symbols share the first page with full-width digits and punctuation (` key).
-             The digit keys keep their full-width digits, so a variant whose related symbol is
+             The digit keys keep their full-width digits and the hyphen key keeps ——, so a variant whose related symbol is
              on a digit key moves straight down the same column to the first free letter key;
              (Bottom-row collisions, which occur only in the P+ variants, take the nearest free key.)
              (U and B are not reserved: a TPS input method does not have to share the Microsoft
@@ -37,12 +37,13 @@ def _panel(lay, vs, merged, blank):
     if not merged:
         return {v: related_key(lay, v) for v in vs}
     out, taken = {}, set(RESERVED) | blank
-    first = [v for v in vs if related_key(lay, v) not in DIGITS]
-    later = [v for v in vs if related_key(lay, v) in DIGITS]
+    first = [v for v in vs if related_key(lay, v) not in DIGITS | {'-'}]
+    later = [v for v in vs if related_key(lay, v) in DIGITS | {'-'}]
     for v in first + later:
         k = related_key(lay, v)
-        if k in DIGITS or k in taken:
+        if k in DIGITS or k == '-' or k in taken:
             ri, i = POS[k]
+            if k == '-': i = 9      # the hyphen key keeps ——; it has no key below, so start under 0
             k = None
             for r2 in range(ri + 1, len(ROWS)):
                 if i < len(ROWS[r2]) and ROWS[r2][i] not in taken | DIGITS:

@@ -8,7 +8,7 @@ from config import OUT
 INITIALS=list('ㄅㄆㄇㆠㄉㄊㄋㄌㄍㄎㄫㆣㄏㄗㄘㄙㆡ')
 best=json.load(open(OUT/'layouts_proposed.json',encoding='utf-8'))
 SEC={'ㄅ':'ㆴ','ㄉ':'ㆵ','ㄍ':'ㆻ','ㄏ':'ㆷ','ㆰ':'ㆱ','ˋ':'ˇ','ˊ':'ˆ'}
-TONES='ˋ˪ˊ˫˙'
+TONES='ˋ˪ˊ˫˙ˇˆ'
 COL={'ini':'#dbe9f6','rime':'#fbe3cf','tone':'#e2f0d9','nas':'#eadcf2','none':'#f2f2f2'}
 def cat(u):
     if u is None: return 'none'
@@ -27,7 +27,7 @@ def draw(m,fn,title):
             ax.add_patch(FancyBboxPatch((x+0.05,y+0.05),0.9,0.9,boxstyle='round,pad=0.0,rounding_size=0.12',fc=COL[cat(u)],ec='#888',lw=0.8))
             ax.text(x+0.13,y+0.82,c.upper(),fontsize=8,color='#777',va='top')
             if u: ax.text(x+0.5,y+0.42,'nas' if u=='N' else u,fontsize=20 if u!='N' else 15,ha='center',va='center')
-            if u in SEC: ax.text(x+0.85,y+0.82,SEC[u],fontsize=10,color='#c0392b',ha='right',va='top')
+            if u in SEC and SEC[u] not in best[m]: ax.text(x+0.85,y+0.82,SEC[u],fontsize=10,color='#c0392b',ha='right',va='top')
     ax.add_patch(FancyBboxPatch((3.3,-0.2),4.5,0.75,boxstyle='round,pad=0.0,rounding_size=0.12',fc=COL['tone'],ec='#888',lw=0.8))
     ax.text(5.55,0.17,'Space = tones 1 and 4',fontsize=11,ha='center',va='center')
     for k,(lab,cc) in enumerate([('Initial','ini'),('Rime','rime'),('Tone','tone'),('Nasalization','nas')]):

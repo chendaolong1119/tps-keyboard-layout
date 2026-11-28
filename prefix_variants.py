@@ -3,9 +3,8 @@ entered with ` then Tab (desktop) or the symbol key and a page tab (phone), on t
 related symbol. The freed main-layer keys are re-optimized.
   P  : ㄫ (0.03% of keystrokes) and the already-secondary ㆱ, ˇ, ˆ
   P+ : additionally ㆡ, ㆭ, ㆰ (each 0.3-0.4%), to show the trend
-  Layout A-P is not re-optimized: it is Layout A with ㄫ kept on its main-layer key, ˇ moved from
-  Shift+4 to 3 (its Dachien position, freed by moving ㆡ to the free - key) and ˆ from Shift+6 to
-  the free 5 key, so only ㆱ (and the panel-only symbols) are on the prefix page.
+  Layout A-P has the main layer of Layout A unchanged (ㄫ on its key, ˇ on 3, ˆ on 5), so only
+  ㆱ (and the panel-only symbols) are on the prefix page.
 Usage: python prefix_variants.py        (optimize and score; out/prefix_variants.json, out/prefix_scores.csv)
        python prefix_variants.py score  (re-score the saved variants only)"""
 import json, itertools, csv, os
@@ -41,9 +40,11 @@ def run(args):
     vname, mode, seed = args
     moved = VARIANTS[vname]; reduce_units(moved)
     ini = [u for u in opt.INITIALS if u not in moved]
-    if mode == 'A': fixed, allowed = opt.DAQIAN, {}
+    if mode == 'A': fixed, allowed = opt.DAQIAN, opt.a_allowed(opt.U)
     else: fixed, allowed = {}, {u: opt.LEFT for u in ini}
-    return vname, mode, seed, opt.anneal(fixed, allowed, iters=ITERS, seed=seed)
+    c, lay = opt.anneal(fixed, allowed, iters=ITERS, seed=seed)
+    if mode == 'A': lay = dict(lay, **opt.A_TONES)
+    return vname, mode, seed, (c, lay)
 
 def structured(base, moved):
     reduce_units(moved)
@@ -86,8 +87,7 @@ def with_prefix(lay, moved, merged=False):
     return d
 
 def a_p():
-    base = json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))['A']
-    return dict(base, **{'ˇ': '3', 'ㆡ': '-', 'ˆ': '5'})
+    return json.load(open(OUT / 'layouts_proposed.json', encoding='utf-8'))['A']
 
 def full_main(lay):
     return {u: (c, 0) for u, c in lay.items()}

@@ -38,7 +38,7 @@ Expected output of step 4 (composite score: Taigi-TPS = 100, lower is better). T
 | Taigi Keyboard (Windows) | 8.22 | 1.290 | 3.52 | 20.5% | 104.6 |
 | Wu Shou-Li (Mandarin-extended, desktop only) | 9.85 | — | 3.50 | 19.1% | — |
 | Taigi Keyboard (Android) | — | 1.396 | 3.74 | 36.7% | — |
-| Layout A (Dachien-preserving) | 7.19 | 1.189 | 3.37 | 0.0% | 94.1 |
+| Layout A (Dachien-preserving) | 7.20 | 1.190 | 3.37 | 0.0% | 94.2 |
 | Layout B (hand-split) | 4.26 | 1.022 | 3.37 | 0.0% | 68.9 |
 | Layout C (structured hand-split) | 4.76 | 1.060 | 3.37 | 0.0% | 73.6 |
 | Unconstrained reference | 4.27 | 1.006 | 3.37 | 0.0% | 68.3 |
