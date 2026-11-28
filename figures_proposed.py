@@ -13,11 +13,11 @@ NASV={'ㄚ':'ㆩ','ㄧ':'ㆪ','ㄨ':'ㆫ','ㆤ':'ㆥ','ㆦ':'ㆧ','ㄞ':'ㆮ','�
 SHIFT={'ㆰ':'ㆱ','ˋ':'ˇ','ˊ':'ˆ'}                    # secondary layer, typed with Shift (blue)
 LANG=sys.argv[1] if len(sys.argv)>1 else 'en'
 T={'en':dict(nas='nas',space='Space = tones 1 and 4',leg=['Initial','Rime','Tone','Nasalization'],
-             note='\nred = entering final (after a rime); green = before ㄧ (i); orange = with the nasal key; blue = Shift',
+             note='\nred = entering final (after a rime); green = before the letter ㄧ (i); orange = with the nasal key; blue = Shift',
              titles={'A':'Layout A: Dachien-preserving','B':'Layout B: hand-split (all initials on the left half)',
                      'C':'Layout C: structured hand-split (columns = place, rows = manner)','free':'Unconstrained reference'}),
    'zh':dict(nas='鼻',space='空白鍵＝第 1、4 聲',leg=['聲母','韻母','聲調','鼻化'],
-             note='\n紅字＝入聲韻尾（接在韻母後）；綠字＝後接 ㄧ（i）時的同位音；橘字＝母音＋鼻化鍵；藍字＝Shift',
+             note='\n紅字＝入聲韻尾（接在韻母後）；綠字＝後接字母 ㄧ（i）時的同位音；橘字＝母音＋鼻化鍵；藍字＝Shift',
              titles={'A':'方案甲：保留大千式','B':'方案乙：左右分工（聲母全在左半）',
                      'C':'方案丙：結構化左右分工（行＝發音部位，列＝發音方法）','free':'無限制參考排列'})}[LANG]
 TONES='ˋ˪ˊ˫˙ˇˆ'
